@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -70,13 +75,31 @@ class _SettingScreenState extends State<SettingScreen> {
     if (!ok) return;
     setState(() => _setting = s);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pengaturan disimpan')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Pengaturan disimpan')));
     }
+  }
+
+  Future<void> _pickLogo() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked == null || !mounted) return;
+    final dir = await getApplicationDocumentsDirectory();
+    if (!mounted) return;
+    final destPath = p.join(dir.path, 'store_logo${p.extension(picked.path)}');
+    final ok = await runSafely(context, () async {
+      await File(picked.path).copy(destPath);
+      await _repo.save(_setting!.copyWith(logoPath: destPath));
+    });
+    if (ok) setState(() => _setting = _setting!.copyWith(logoPath: destPath));
   }
 
   Future<void> _setPrinter(PrinterDevice? device) async {
     if (device == null) return;
-    final s = _setting!.copyWith(printerMacAddress: device.macAddress, printerName: device.name);
+    final s = _setting!.copyWith(
+      printerMacAddress: device.macAddress,
+      printerName: device.name,
+    );
     final ok = await runSafely(context, () => _repo.save(s));
     if (ok) setState(() => _setting = s);
   }
@@ -97,7 +120,10 @@ class _SettingScreenState extends State<SettingScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: clientIdCtrl, decoration: const InputDecoration(labelText: 'Client ID')),
+            TextField(
+              controller: clientIdCtrl,
+              decoration: const InputDecoration(labelText: 'Client ID'),
+            ),
             TextField(
               controller: passwordCtrl,
               obscureText: true,
@@ -106,26 +132,44 @@ class _SettingScreenState extends State<SettingScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Masuk')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Masuk'),
+          ),
         ],
       ),
     );
     if (result != true || !mounted) return;
     if (_setting!.backupBaseUrl.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Isi dan simpan URL layanan backup terlebih dahulu')),
+        const SnackBar(
+          content: Text('Isi dan simpan URL layanan backup terlebih dahulu'),
+        ),
       );
       return;
     }
     try {
       final service = BackupService(_setting!.backupBaseUrl);
-      final token = await service.login(clientIdCtrl.text.trim(), passwordCtrl.text);
-      final s = _setting!.copyWith(backupClientId: clientIdCtrl.text.trim(), backupToken: token);
+      final token = await service.login(
+        clientIdCtrl.text.trim(),
+        passwordCtrl.text,
+      );
+      final s = _setting!.copyWith(
+        backupClientId: clientIdCtrl.text.trim(),
+        backupToken: token,
+      );
       await _repo.save(s);
       setState(() => _setting = s);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$e')));
+      }
     }
   }
 
@@ -143,10 +187,16 @@ class _SettingScreenState extends State<SettingScreen> {
       await _repo.save(s);
       setState(() => _setting = s);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Backup berhasil')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Backup berhasil')));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Backup gagal: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Backup gagal: $e')));
+      }
     }
   }
 
@@ -155,6 +205,10 @@ class _SettingScreenState extends State<SettingScreen> {
       final service = BackupService(_setting!.backupBaseUrl);
       final backups = await service.listBackups(_setting!.backupToken!);
       if (!mounted) return;
+      // Restoring overwrites the whole local database, so — same as the
+      // desktop app's owner-only /restore endpoint — only Owner gets the
+      // restore action here; Admin can still view the backup list.
+      final isOwner = context.read<SessionState>().isOwner;
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -170,33 +224,62 @@ class _SettingScreenState extends State<SettingScreen> {
                       final b = backups[index];
                       return ListTile(
                         title: Text(b.filename),
-                        subtitle: Text('${b.createdAt} · ${(b.size / 1024).toStringAsFixed(1)} KB'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.restore),
-                          tooltip: 'Restore',
-                          onPressed: () => _restore(b.filename),
+                        subtitle: Text(
+                          '${b.createdAt} · ${(b.size / 1024).toStringAsFixed(1)} KB',
                         ),
+                        trailing: isOwner
+                            ? IconButton(
+                                icon: const Icon(Icons.restore),
+                                tooltip: 'Restore',
+                                onPressed: () => _restore(b.filename),
+                              )
+                            : null,
                       );
                     },
                   ),
           ),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tutup'))],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Tutup'),
+            ),
+          ],
         ),
       );
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$e')));
+      }
     }
   }
 
   Future<void> _restore(String filename) async {
+    if (!context.read<SessionState>().isOwner) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Hanya Owner yang bisa melakukan restore'),
+        ),
+      );
+      return;
+    }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Restore Backup'),
-        content: Text('Data saat ini di perangkat akan diganti dengan "$filename". Lanjutkan?'),
+        content: Text(
+          'Data saat ini di perangkat akan diganti dengan "$filename". Lanjutkan?',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Restore')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Restore'),
+          ),
         ],
       ),
     );
@@ -204,7 +287,10 @@ class _SettingScreenState extends State<SettingScreen> {
     Navigator.of(context).pop(); // close the backup list dialog
     try {
       final service = BackupService(_setting!.backupBaseUrl);
-      final bytes = await service.downloadBackup(_setting!.backupToken!, filename);
+      final bytes = await service.downloadBackup(
+        _setting!.backupToken!,
+        filename,
+      );
       await service.applyRestore(bytes);
       if (!mounted) return;
       // Restored data may not include the current session's user anymore —
@@ -216,7 +302,11 @@ class _SettingScreenState extends State<SettingScreen> {
         (route) => false,
       );
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Restore gagal: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Restore gagal: $e')));
+      }
     }
   }
 
@@ -229,15 +319,48 @@ class _SettingScreenState extends State<SettingScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text('Informasi Toko', style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text(
+          'Informasi Toko',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
-        TextField(controller: _namaTokoCtrl, decoration: const InputDecoration(labelText: 'Nama Toko')),
+        Row(
+          children: [
+            if (setting.logoPath != null &&
+                File(setting.logoPath!).existsSync())
+              CircleAvatar(
+                radius: 28,
+                backgroundImage: FileImage(File(setting.logoPath!)),
+              )
+            else
+              const CircleAvatar(radius: 28, child: Icon(Icons.storefront)),
+            const SizedBox(width: 12),
+            OutlinedButton(
+              onPressed: _pickLogo,
+              child: const Text('Pilih Logo'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _namaTokoCtrl,
+          decoration: const InputDecoration(labelText: 'Nama Toko'),
+        ),
         const SizedBox(height: 8),
-        TextField(controller: _alamatCtrl, decoration: const InputDecoration(labelText: 'Alamat')),
+        TextField(
+          controller: _alamatCtrl,
+          decoration: const InputDecoration(labelText: 'Alamat'),
+        ),
         const SizedBox(height: 8),
-        TextField(controller: _teleponCtrl, decoration: const InputDecoration(labelText: 'Telepon')),
+        TextField(
+          controller: _teleponCtrl,
+          decoration: const InputDecoration(labelText: 'Telepon'),
+        ),
         const SizedBox(height: 8),
-        TextField(controller: _footerCtrl, decoration: const InputDecoration(labelText: 'Footer Struk')),
+        TextField(
+          controller: _footerCtrl,
+          decoration: const InputDecoration(labelText: 'Footer Struk'),
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: _taxCtrl,
@@ -249,13 +372,17 @@ class _SettingScreenState extends State<SettingScreen> {
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: setting.printerMacAddress,
-          decoration: const InputDecoration(labelText: 'Printer Bluetooth Terpasang'),
+          decoration: const InputDecoration(
+            labelText: 'Printer Bluetooth Terpasang',
+          ),
           items: [
             for (final p in _pairedPrinters)
               DropdownMenuItem(value: p.macAddress, child: Text(p.name)),
           ],
           onChanged: (mac) {
-            final device = _pairedPrinters.firstWhere((p) => p.macAddress == mac);
+            final device = _pairedPrinters.firstWhere(
+              (p) => p.macAddress == mac,
+            );
             _setPrinter(device);
           },
         ),
@@ -278,7 +405,10 @@ class _SettingScreenState extends State<SettingScreen> {
           ],
         ),
         const SizedBox(height: 24),
-        const Text('Layanan Backup', style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text(
+          'Layanan Backup',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: _backupUrlCtrl,
@@ -293,13 +423,20 @@ class _SettingScreenState extends State<SettingScreen> {
               size: 18,
             ),
             const SizedBox(width: 6),
-            Text(setting.backupConnected ? 'Terhubung (${setting.backupClientId})' : 'Belum terhubung'),
+            Text(
+              setting.backupConnected
+                  ? 'Terhubung (${setting.backupClientId})'
+                  : 'Belum terhubung',
+            ),
           ],
         ),
         if (setting.lastBackupAt != null)
           Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Text('Backup terakhir: ${setting.lastBackupAt}', style: const TextStyle(fontSize: 12)),
+            child: Text(
+              'Backup terakhir: ${setting.lastBackupAt}',
+              style: const TextStyle(fontSize: 12),
+            ),
           ),
         const SizedBox(height: 8),
         Wrap(
@@ -308,14 +445,23 @@ class _SettingScreenState extends State<SettingScreen> {
             if (!setting.backupConnected)
               FilledButton(onPressed: _backupLogin, child: const Text('Masuk'))
             else ...[
-              FilledButton(onPressed: _backupNow, child: const Text('Backup Now')),
-              OutlinedButton(onPressed: _showBackupList, child: const Text('Lihat Daftar Backup')),
+              FilledButton(
+                onPressed: _backupNow,
+                child: const Text('Backup Now'),
+              ),
+              OutlinedButton(
+                onPressed: _showBackupList,
+                child: const Text('Lihat Daftar Backup'),
+              ),
               TextButton(onPressed: _backupLogout, child: const Text('Keluar')),
             ],
           ],
         ),
         const SizedBox(height: 24),
-        FilledButton(onPressed: _saveGeneral, child: const Text('Simpan Pengaturan')),
+        FilledButton(
+          onPressed: _saveGeneral,
+          child: const Text('Simpan Pengaturan'),
+        ),
       ],
     );
   }
