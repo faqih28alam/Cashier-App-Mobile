@@ -20,7 +20,10 @@ class _MasterSupplierTabState extends State<MasterSupplierTab> {
     _reload();
   }
 
-  void _reload() => setState(() => _future = SupplierRepository().all());
+  void _reload() {
+    _future = SupplierRepository().all();
+    setState(() {});
+  }
 
   Future<void> _edit({Supplier? existing}) async {
     final kodeCtrl = TextEditingController(text: existing?.kode ?? '');

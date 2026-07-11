@@ -23,7 +23,10 @@ class _MasterUserTabState extends State<MasterUserTab> {
     _reload();
   }
 
-  void _reload() => setState(() => _future = UserRepository().all());
+  void _reload() {
+    _future = UserRepository().all();
+    setState(() {});
+  }
 
   Future<void> _edit({AppUser? existing}) async {
     final result = await showDialog<_UserFormResult>(

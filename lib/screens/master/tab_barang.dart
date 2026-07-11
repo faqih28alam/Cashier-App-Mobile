@@ -28,12 +28,10 @@ class _MasterBarangTabState extends State<MasterBarangTab> {
     KategoriRepository().all().then((v) => setState(() => _kategoris = v));
   }
 
-  void _reload() => setState(
-    () => _future = BarangRepository().all(
-      search: _search,
-      kategoriId: _kategoriId,
-    ),
-  );
+  void _reload() {
+    _future = BarangRepository().all(search: _search, kategoriId: _kategoriId);
+    setState(() {});
+  }
 
   Future<void> _openForm({Barang? existing}) async {
     await Navigator.of(context).push(

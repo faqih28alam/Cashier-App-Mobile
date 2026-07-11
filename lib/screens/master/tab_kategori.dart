@@ -20,7 +20,10 @@ class _MasterKategoriTabState extends State<MasterKategoriTab> {
     _reload();
   }
 
-  void _reload() => setState(() => _future = KategoriRepository().all());
+  void _reload() {
+    _future = KategoriRepository().all();
+    setState(() {});
+  }
 
   Future<void> _edit({Kategori? existing}) async {
     final kodeCtrl = TextEditingController(text: existing?.kode ?? '');

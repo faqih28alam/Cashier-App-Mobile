@@ -103,7 +103,7 @@ class AppDatabase {
         await db.execute('''
           CREATE TABLE transaksi (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            no_transaksi TEXT NOT NULL UNIQUE,
+            no_transaksi TEXT NOT NULL,
             tanggal TEXT NOT NULL,
             id_user INTEGER NOT NULL,
             total REAL NOT NULL DEFAULT 0,
@@ -112,6 +112,14 @@ class AppDatabase {
             status TEXT NOT NULL DEFAULT 'open',
             FOREIGN KEY (id_user) REFERENCES user (id)
           )
+        ''');
+        // Held transactions are saved with no_transaksi = '' (assigned only
+        // at payment time), so uniqueness can only be enforced on assigned
+        // (non-empty) transaction numbers — otherwise two different users
+        // each holding one transaction would collide on ''.
+        await db.execute('''
+          CREATE UNIQUE INDEX idx_transaksi_no_transaksi_nonempty
+            ON transaksi (no_transaksi) WHERE no_transaksi <> ''
         ''');
         await db.execute('''
           CREATE TABLE transaksi_detail (

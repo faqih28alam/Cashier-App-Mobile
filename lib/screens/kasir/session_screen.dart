@@ -19,6 +19,11 @@ class KasirSessionScreen extends StatefulWidget {
 class _KasirSessionScreenState extends State<KasirSessionScreen> {
   bool _loading = true;
   Transaksi? _held;
+  // Only auto-skip into a fresh KasirScreen once per visit to this screen —
+  // otherwise backing out of an empty cart re-triggers the same auto-open,
+  // looping forever and never showing whatever is behind this screen
+  // (the module drawer/logout for Admin/Owner, or the logout button for Kasir).
+  bool _autoOpened = false;
 
   @override
   void initState() {
@@ -35,7 +40,8 @@ class _KasirSessionScreenState extends State<KasirSessionScreen> {
       _held = held;
       _loading = false;
     });
-    if (held == null) {
+    if (held == null && !_autoOpened) {
+      _autoOpened = true;
       await _openKasir(null);
     }
   }
@@ -49,8 +55,28 @@ class _KasirSessionScreenState extends State<KasirSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading || _held == null) {
+    if (_loading) {
       return const Center(child: CircularProgressIndicator());
+    }
+    if (_held == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.point_of_sale, size: 56),
+              const SizedBox(height: 16),
+              const Text('Belum ada transaksi.'),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: () => _openKasir(null),
+                child: const Text('Mulai Baru'),
+              ),
+            ],
+          ),
+        ),
+      );
     }
     final held = _held!;
     return Center(
