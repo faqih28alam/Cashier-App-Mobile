@@ -1,4 +1,9 @@
-import {resolvePrice, computeLineTotal, round2} from '../src/domain/pricing';
+import {
+  resolvePrice,
+  computeLineTotal,
+  computeTaxTotal,
+  round2,
+} from '../src/domain/pricing';
 import {Product} from '../src/types';
 
 function makeProduct(overrides: Partial<Product> = {}): Product {
@@ -92,5 +97,24 @@ describe('round2', () => {
   it('rounds to two decimal places', () => {
     expect(round2(10.126)).toBeCloseTo(10.13, 2);
     expect(round2(10.124)).toBeCloseTo(10.12, 2);
+  });
+});
+
+describe('computeTaxTotal', () => {
+  it('treats taxRate as a percentage, not a raw multiplier (regression: 10% on 20000 must be 2000, not 200000)', () => {
+    const subtotal = 20000;
+    const taxRate = 10; // stored/edited as "10" meaning 10%
+    const taxTotal = computeTaxTotal(subtotal, taxRate);
+    expect(taxTotal).toBe(2000);
+    expect(round2(subtotal + taxTotal)).toBe(22000);
+  });
+
+  it('returns 0 when taxRate is 0 or falsy', () => {
+    expect(computeTaxTotal(20000, 0)).toBe(0);
+    expect(computeTaxTotal(20000, null as unknown as number)).toBe(0);
+  });
+
+  it('supports fractional percentages', () => {
+    expect(computeTaxTotal(20000, 2.5)).toBe(500);
   });
 });

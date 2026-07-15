@@ -5,7 +5,12 @@ import {
   findProductByBarcode,
   adjustStock,
 } from './productRepo';
-import {resolvePrice, computeLineTotal, round2} from '../../domain/pricing';
+import {
+  resolvePrice,
+  computeLineTotal,
+  computeTaxTotal,
+  round2,
+} from '../../domain/pricing';
 import {insertFinanceEntry} from './financeRepo';
 
 function mapTxRow(row: any): Transaction {
@@ -128,7 +133,7 @@ async function recomputeTotals(
   const items = await getTransactionItems(transactionId);
   const subtotal = round2(items.reduce((sum, i) => sum + i.lineTotal, 0));
   const discountTotal = round2(items.reduce((sum, i) => sum + i.discount, 0));
-  const taxTotal = round2(subtotal * (taxRate || 0));
+  const taxTotal = computeTaxTotal(subtotal, taxRate);
   const total = round2(subtotal + taxTotal);
   await db.executeSql(
     "UPDATE transactions SET subtotal = ?, discount_total = ?, tax_total = ?, total = ?, updated_at = datetime('now') WHERE id = ?;",

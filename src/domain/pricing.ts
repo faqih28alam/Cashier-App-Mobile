@@ -48,3 +48,13 @@ export function computeLineTotal(
 export function round2(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
+
+/**
+ * Computes the tax amount for a subtotal, given a tax rate stored/edited as
+ * a percentage (e.g. `10` means 10%, not a raw 10x multiplier). This is the
+ * single point where the percentage-to-fraction conversion happens; call
+ * sites must not divide by 100 again themselves.
+ */
+export function computeTaxTotal(subtotal: number, taxRate: number): number {
+  return round2(subtotal * ((taxRate || 0) / 100));
+}

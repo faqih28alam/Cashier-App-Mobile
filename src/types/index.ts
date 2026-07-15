@@ -125,6 +125,11 @@ export interface Settings {
   storePhone: string;
   logoUri: string | null;
   receiptFooter: string;
+  /**
+   * Stored and edited as a percentage (e.g. `10` means 10% tax), not a raw
+   * fraction/multiplier. Convert with `computeTaxTotal` (src/domain/pricing)
+   * wherever tax needs to be applied to a subtotal.
+   */
   taxRate: number;
   paperWidth: PaperWidth;
   printerAddress: string | null;

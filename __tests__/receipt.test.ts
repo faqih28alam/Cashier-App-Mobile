@@ -85,4 +85,31 @@ describe('buildReceiptLines', () => {
       expect(line.length).toBeLessThanOrEqual(48);
     }
   });
+
+  it('shows the correct Pajak and TOTAL lines for a nonzero tax rate (regression: tax must not be inflated ~100x)', () => {
+    // 10% tax on a 20000 subtotal, as computed by
+    // src/domain/pricing.ts#computeTaxTotal — must be 2000, not 200000.
+    const taxedSettings: Settings = {...settings, taxRate: 10};
+    const taxedTransaction: Transaction = {
+      ...transaction,
+      taxTotal: 2000,
+      total: 22000,
+      cashPaid: 25000,
+      changeDue: 3000,
+    };
+    const lines = buildReceiptLines(
+      {
+        settings: taxedSettings,
+        transaction: taxedTransaction,
+        items,
+        cashierName: 'Budi',
+      },
+      58,
+    );
+    const joined = lines.join('\n');
+    expect(joined).toContain('Pajak');
+    expect(joined).toMatch(/Pajak\s+Rp 2\.000/);
+    expect(joined).toMatch(/TOTAL\s+Rp 22\.000/);
+    expect(joined).not.toMatch(/200\.000/);
+  });
 });
