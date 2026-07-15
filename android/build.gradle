@@ -19,3 +19,15 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            // Some transitive deps resolve to androidx.core versions that require
+            // a newer AGP/compileSdk than this project targets. Pin to a version
+            // compatible with compileSdk 34 / AGP 8.2.x.
+            force 'androidx.core:core:1.13.1'
+            force 'androidx.core:core-ktx:1.13.1'
+        }
+    }
+}
