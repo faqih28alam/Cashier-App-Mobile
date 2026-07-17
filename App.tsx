@@ -11,6 +11,7 @@ import {getDatabase} from './src/db/database';
 import {AuthProvider} from './src/state/AuthContext';
 import {SettingsProvider} from './src/state/SettingsContext';
 import RootNavigator from './src/navigation/RootNavigator';
+import {colors, spacing} from './src/theme';
 
 function App(): React.JSX.Element {
   const [dbReady, setDbReady] = useState(false);
@@ -33,7 +34,7 @@ function App(): React.JSX.Element {
   if (!dbReady) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={colors.navy} />
       </View>
     );
   }
@@ -57,9 +58,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: spacing.xl,
+    backgroundColor: colors.background,
   },
-  errorText: {color: '#b91c1c', textAlign: 'center'},
+  errorText: {color: colors.danger, textAlign: 'center'},
 });
 
 export default App;

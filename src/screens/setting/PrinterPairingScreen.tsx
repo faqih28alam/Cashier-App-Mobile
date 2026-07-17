@@ -18,6 +18,9 @@ import {
   connectPrinter,
 } from '../../services/printerService';
 import {setPrinterSelection} from '../../db/repositories/settingsRepo';
+import Button from '../../components/ui/Button';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PrinterPairing'>;
 
@@ -65,26 +68,22 @@ function PrinterPairingInner({navigation}: Props) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      <Button
         style={styles.scanButton}
+        label={loading ? 'Memindai...' : 'Pindai Perangkat Bluetooth'}
         onPress={scan}
-        disabled={loading}>
-        <Text style={styles.scanButtonText}>
-          {loading ? 'Memindai...' : 'Pindai Perangkat Bluetooth'}
-        </Text>
-      </TouchableOpacity>
+        loading={loading}
+      />
 
       <FlatList
         data={devices}
         keyExtractor={item => item.address}
+        contentContainerStyle={styles.list}
         ListEmptyComponent={
           !loading ? (
-            <Text style={styles.empty}>
-              Belum ada perangkat. Pasangkan printer di Pengaturan Bluetooth
-              Android terlebih dahulu, lalu pindai.
-            </Text>
+            <EmptyState message="Belum ada perangkat. Pasangkan printer di Pengaturan Bluetooth Android terlebih dahulu, lalu pindai." />
           ) : (
-            <ActivityIndicator style={styles.loader} />
+            <ActivityIndicator style={styles.loader} color={colors.navy} />
           )
         }
         renderItem={({item}) => (
@@ -92,12 +91,12 @@ function PrinterPairingInner({navigation}: Props) {
             style={styles.row}
             onPress={() => select(item)}
             disabled={connectingAddress === item.address}>
-            <Text style={styles.rowName}>
+            <Text style={styles.rowName} numberOfLines={1} ellipsizeMode="tail">
               {item.name || 'Perangkat tanpa nama'}
             </Text>
             <Text style={styles.rowAddress}>{item.address}</Text>
             {connectingAddress === item.address && (
-              <ActivityIndicator style={styles.rowLoader} />
+              <ActivityIndicator style={styles.rowLoader} color={colors.navy} />
             )}
           </TouchableOpacity>
         )}
@@ -115,24 +114,20 @@ export default function PrinterPairingScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff', padding: 12},
-  scanButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 12,
+  container: {flex: 1, backgroundColor: colors.background, padding: spacing.md},
+  scanButton: {marginBottom: spacing.md},
+  list: {flexGrow: 1},
+  loader: {marginTop: spacing.xl},
+  row: {
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
-  scanButtonText: {color: '#fff', fontWeight: '700'},
-  empty: {
-    textAlign: 'center',
-    color: '#999',
-    marginTop: 24,
-    paddingHorizontal: 16,
-  },
-  loader: {marginTop: 24},
-  row: {paddingVertical: 12, borderBottomWidth: 1, borderColor: '#eee'},
-  rowName: {fontWeight: '600'},
-  rowAddress: {color: '#666', fontSize: 12, marginTop: 2},
-  rowLoader: {marginTop: 6},
+  rowName: {...typography.bodyMedium},
+  rowAddress: {color: colors.textMuted, fontSize: 12, marginTop: 2},
+  rowLoader: {marginTop: spacing.xs + 2},
 });

@@ -16,6 +16,8 @@ import RoleGuard from '../../components/common/RoleGuard';
 import {useSettings} from '../../state/SettingsContext';
 import {PaperWidth} from '../../types';
 import {exportBackup} from '../../services/backupService';
+import Button from '../../components/ui/Button';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Setting'>;
 
@@ -127,9 +129,7 @@ function SettingInner({navigation}: Props) {
       ) : (
         <Text style={styles.noLogo}>Belum ada logo</Text>
       )}
-      <TouchableOpacity style={styles.secondaryButton} onPress={pickLogo}>
-        <Text style={styles.secondaryButtonText}>Pilih Logo</Text>
-      </TouchableOpacity>
+      <Button variant="secondary" label="Pilih Logo" onPress={pickLogo} />
 
       <Text style={styles.sectionLabel}>Struk</Text>
       <Text style={styles.label}>Teks Footer Struk</Text>
@@ -167,29 +167,32 @@ function SettingInner({navigation}: Props) {
         ))}
       </View>
 
-      <TouchableOpacity style={styles.saveButton} onPress={persist}>
-        <Text style={styles.saveButtonText}>Simpan Pengaturan</Text>
-      </TouchableOpacity>
+      <Button
+        style={styles.saveButton}
+        label="Simpan Pengaturan"
+        onPress={persist}
+      />
 
       <Text style={styles.sectionLabel}>Printer Bluetooth</Text>
-      <Text style={styles.currentPrinter}>
+      <Text
+        style={styles.currentPrinter}
+        numberOfLines={1}
+        ellipsizeMode="tail">
         Printer terpasang: {settings?.printerName ?? 'Belum dipilih'}
       </Text>
-      <TouchableOpacity
-        style={styles.secondaryButton}
-        onPress={() => navigation.navigate('PrinterPairing')}>
-        <Text style={styles.secondaryButtonText}>Pilih Printer</Text>
-      </TouchableOpacity>
+      <Button
+        variant="secondary"
+        label="Pilih Printer"
+        onPress={() => navigation.navigate('PrinterPairing')}
+      />
 
       <Text style={styles.sectionLabel}>Backup / Export Data</Text>
-      <TouchableOpacity
-        style={styles.secondaryButton}
+      <Button
+        variant="secondary"
+        label={backingUp ? 'Memproses backup...' : 'Backup Sekarang'}
         onPress={runBackup}
-        disabled={backingUp}>
-        <Text style={styles.secondaryButtonText}>
-          {backingUp ? 'Memproses backup...' : 'Backup Sekarang'}
-        </Text>
-      </TouchableOpacity>
+        disabled={backingUp}
+      />
     </ScrollView>
   );
 }
@@ -203,58 +206,49 @@ export default function SettingScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {padding: 16, paddingBottom: 40},
-  sectionLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginTop: 24,
-    marginBottom: 8,
+  container: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    backgroundColor: colors.background,
   },
-  label: {fontSize: 13, color: '#444', marginBottom: 4, marginTop: 8},
+  sectionLabel: {
+    ...typography.sectionLabel,
+    marginTop: spacing.xl,
+    marginBottom: spacing.sm,
+  },
+  label: {...typography.label, marginBottom: spacing.xs, marginTop: spacing.sm},
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
     fontSize: 15,
+    color: colors.textPrimary,
+    backgroundColor: colors.card,
   },
   multiline: {minHeight: 60, textAlignVertical: 'top'},
-  widthRow: {flexDirection: 'row', gap: 8},
+  widthRow: {flexDirection: 'row', gap: spacing.sm},
   widthChip: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingVertical: 10,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.sm + 2,
     alignItems: 'center',
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
-  widthChipActive: {backgroundColor: '#1d4ed8', borderColor: '#1d4ed8'},
-  widthText: {color: '#333', fontWeight: '600'},
-  widthTextActive: {color: '#fff', fontWeight: '700'},
-  saveButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  saveButtonText: {color: '#fff', fontWeight: '700', fontSize: 16},
-  currentPrinter: {color: '#555', marginBottom: 8},
-  secondaryButton: {
-    backgroundColor: '#eef2ff',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {color: '#1d4ed8', fontWeight: '700'},
+  widthChipActive: {backgroundColor: colors.navy, borderColor: colors.navy},
+  widthText: {color: colors.textSecondary, fontWeight: '600'},
+  widthTextActive: {color: colors.textOnBrand, fontWeight: '700'},
+  saveButton: {marginTop: spacing.md},
+  currentPrinter: {color: colors.textSecondary, marginBottom: spacing.sm},
   logoPreview: {
     width: 96,
     height: 96,
-    borderRadius: 8,
-    marginBottom: 8,
-    backgroundColor: '#f5f5f7',
+    borderRadius: radius.sm,
+    marginBottom: spacing.sm,
+    backgroundColor: colors.background,
   },
-  noLogo: {color: '#999', marginBottom: 8},
+  noLogo: {color: colors.textMuted, marginBottom: spacing.sm},
 });

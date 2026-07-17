@@ -20,6 +20,10 @@ import {
   listFinanceEntries,
 } from '../../db/repositories/financeRepo';
 import {formatCurrency} from '../../domain/money';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Keuangan'>;
 
@@ -75,28 +79,40 @@ function FinanceInner(_: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.balanceBox}>
+      <Card style={styles.balanceBox}>
         <Text style={styles.balanceLabel}>Saldo Kas</Text>
-        <Text style={styles.balanceValue}>{formatCurrency(balance)}</Text>
-      </View>
+        <Text
+          style={[styles.balanceValue, balance < 0 && styles.balanceNegative]}
+          numberOfLines={1}
+          adjustsFontSizeToFit>
+          {formatCurrency(balance)}
+        </Text>
+      </Card>
 
-      <TouchableOpacity
+      <Button
         style={styles.addButton}
-        onPress={() => setModalVisible(true)}>
-        <Text style={styles.addButtonText}>+ Catat Transaksi Manual</Text>
-      </TouchableOpacity>
+        label="+ Catat Transaksi Manual"
+        onPress={() => setModalVisible(true)}
+      />
 
       <FlatList
         data={entries}
         keyExtractor={item => String(item.id)}
-        ListEmptyComponent={
-          <Text style={styles.empty}>Belum ada catatan keuangan</Text>
-        }
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={<EmptyState message="Belum ada catatan keuangan" />}
         renderItem={({item}) => (
           <View style={styles.row}>
-            <View>
-              <Text style={styles.rowDesc}>{item.description}</Text>
-              <Text style={styles.rowMeta}>
+            <View style={styles.rowMain}>
+              <Text
+                style={styles.rowDesc}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {item.description}
+              </Text>
+              <Text
+                style={styles.rowMeta}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {SOURCE_LABEL[item.source] ?? item.source} ·{' '}
                 {new Date(item.createdAt).toLocaleString('id-ID')}
               </Text>
@@ -148,6 +164,7 @@ function FinanceInner(_: Props) {
             <TextInput
               style={styles.input}
               placeholder="Nominal"
+              placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
               value={amount}
               onChangeText={setAmount}
@@ -155,20 +172,22 @@ function FinanceInner(_: Props) {
             <TextInput
               style={styles.input}
               placeholder="Keterangan"
+              placeholderTextColor={colors.textMuted}
               value={description}
               onChangeText={setDescription}
             />
             <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelButtonText}>Batal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.saveButton}
-                onPress={submitManualEntry}>
-                <Text style={styles.saveButtonText}>Simpan</Text>
-              </TouchableOpacity>
+              <Button
+                style={styles.modalButton}
+                variant="secondary"
+                label="Batal"
+                onPress={() => setModalVisible(false)}
+              />
+              <Button
+                style={styles.modalButton}
+                label="Simpan"
+                onPress={submitManualEntry}
+              />
             </View>
           </View>
         </View>
@@ -186,92 +205,71 @@ export default function FinanceScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff', padding: 12},
-  balanceBox: {
-    alignItems: 'center',
-    marginBottom: 12,
-    padding: 16,
-    backgroundColor: '#eef2ff',
-    borderRadius: 12,
-  },
-  balanceLabel: {color: '#444'},
+  container: {flex: 1, backgroundColor: colors.background, padding: spacing.md},
+  balanceBox: {alignItems: 'center', marginBottom: spacing.md},
+  balanceLabel: {...typography.body, color: colors.textMuted},
   balanceValue: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#1d4ed8',
-    marginTop: 4,
+    color: colors.navy,
+    marginTop: spacing.xs,
   },
-  addButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  addButtonText: {color: '#fff', fontWeight: '700'},
-  empty: {textAlign: 'center', color: '#999', marginTop: 40},
+  balanceNegative: {color: colors.danger},
+  addButton: {marginBottom: spacing.md},
+  list: {flexGrow: 1},
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
-  rowDesc: {fontWeight: '600'},
-  rowMeta: {color: '#666', fontSize: 11, marginTop: 2},
+  rowMain: {flex: 1, marginRight: spacing.sm},
+  rowDesc: {...typography.bodyMedium},
+  rowMeta: {color: colors.textMuted, fontSize: 11, marginTop: 2},
   rowAmount: {fontWeight: '700'},
-  debit: {color: '#16a34a'},
-  kredit: {color: '#b91c1c'},
+  debit: {color: colors.success},
+  kredit: {color: colors.danger},
   modalBackdrop: {
     flex: 1,
-    backgroundColor: '#00000088',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
     width: '85%',
   },
-  modalTitle: {fontSize: 16, fontWeight: '700', marginBottom: 12},
-  typeRow: {flexDirection: 'row', marginBottom: 12, gap: 8},
+  modalTitle: {...typography.cardTitle, marginBottom: spacing.md},
+  typeRow: {flexDirection: 'row', marginBottom: spacing.md, gap: spacing.sm},
   typeButton: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: spacing.sm + 2,
+    borderRadius: radius.sm,
     alignItems: 'center',
-    backgroundColor: '#eee',
-    marginRight: 8,
+    backgroundColor: colors.background,
+    marginRight: spacing.sm,
   },
-  typeButtonActiveDebit: {backgroundColor: '#16a34a'},
-  typeButtonActiveKredit: {backgroundColor: '#b91c1c'},
-  typeText: {color: '#333', fontWeight: '600'},
-  typeTextActive: {color: '#fff', fontWeight: '700'},
+  typeButtonActiveDebit: {backgroundColor: colors.success},
+  typeButtonActiveKredit: {backgroundColor: colors.danger},
+  typeText: {color: colors.textSecondary, fontWeight: '600'},
+  typeTextActive: {color: colors.textOnBrand, fontWeight: '700'},
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 8,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
+    color: colors.textPrimary,
+    marginBottom: spacing.sm,
   },
-  modalActions: {flexDirection: 'row', marginTop: 8, gap: 8},
-  cancelButton: {
-    flex: 1,
-    backgroundColor: '#eee',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  cancelButtonText: {fontWeight: '600', color: '#333'},
-  saveButton: {
-    flex: 1,
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  saveButtonText: {fontWeight: '700', color: '#fff'},
+  modalActions: {flexDirection: 'row', marginTop: spacing.sm, gap: spacing.sm},
+  modalButton: {flex: 1},
 });

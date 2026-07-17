@@ -2,7 +2,6 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
   ActivityIndicator,
@@ -18,6 +17,9 @@ import {
 } from '../../db/repositories/transactionRepo';
 import {buildReceiptLines} from '../../domain/receipt';
 import {printReceiptTo, PrinterError} from '../../services/printerService';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import {colors, spacing} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ReceiptResult'>;
 
@@ -101,7 +103,7 @@ function ReceiptResultInner({navigation, route}: Props) {
       <View style={styles.statusBox}>
         {printStatus === 'printing' && (
           <>
-            <ActivityIndicator />
+            <ActivityIndicator color={colors.navy} />
             <Text style={styles.statusText}>Mencetak struk...</Text>
           </>
         )}
@@ -113,26 +115,22 @@ function ReceiptResultInner({navigation, route}: Props) {
             <Text style={styles.errorText}>
               Transaksi tersimpan, tetapi cetak gagal: {printError}
             </Text>
-            <TouchableOpacity style={styles.retryButton} onPress={retry}>
-              <Text style={styles.retryButtonText}>Cetak Ulang</Text>
-            </TouchableOpacity>
+            <Button label="Cetak Ulang" onPress={retry} />
           </>
         )}
       </View>
 
-      <ScrollView
-        style={styles.preview}
-        contentContainerStyle={styles.previewContent}>
-        {lines.map((line, idx) => (
-          <Text key={idx} style={styles.previewLine}>
-            {line}
-          </Text>
-        ))}
-      </ScrollView>
+      <Card style={styles.preview}>
+        <ScrollView contentContainerStyle={styles.previewContent}>
+          {lines.map((line, idx) => (
+            <Text key={idx} style={styles.previewLine}>
+              {line}
+            </Text>
+          ))}
+        </ScrollView>
+      </Card>
 
-      <TouchableOpacity style={styles.finishButton} onPress={finish}>
-        <Text style={styles.finishButtonText}>Selesai</Text>
-      </TouchableOpacity>
+      <Button style={styles.finishButton} label="Selesai" onPress={finish} />
     </View>
   );
 }
@@ -146,27 +144,21 @@ export default function ReceiptResultScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff', padding: 16},
-  statusBox: {alignItems: 'center', marginBottom: 12},
-  statusText: {marginTop: 8, color: '#666'},
-  successText: {color: '#16a34a', fontWeight: '700', fontSize: 16},
-  errorText: {color: '#b91c1c', textAlign: 'center', marginBottom: 8},
-  retryButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+  container: {flex: 1, backgroundColor: colors.background, padding: spacing.lg},
+  statusBox: {alignItems: 'center', marginBottom: spacing.md},
+  statusText: {marginTop: spacing.sm, color: colors.textMuted},
+  successText: {color: colors.success, fontWeight: '700', fontSize: 16},
+  errorText: {
+    color: colors.danger,
+    textAlign: 'center',
+    marginBottom: spacing.sm,
   },
-  retryButtonText: {color: '#fff', fontWeight: '700'},
-  preview: {flex: 1, backgroundColor: '#fafafa', borderRadius: 8, padding: 8},
-  previewContent: {paddingBottom: 12},
-  previewLine: {fontFamily: 'monospace', fontSize: 12},
-  finishButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 12,
+  preview: {flex: 1, padding: spacing.sm},
+  previewContent: {paddingBottom: spacing.md},
+  previewLine: {
+    fontFamily: 'monospace',
+    fontSize: 12,
+    color: colors.textPrimary,
   },
-  finishButtonText: {color: '#fff', fontWeight: '700', fontSize: 16},
+  finishButton: {marginTop: spacing.md},
 });

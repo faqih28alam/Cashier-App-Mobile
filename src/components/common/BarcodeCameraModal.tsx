@@ -5,6 +5,7 @@ import {
   hasCameraPermission,
   requestCameraPermission,
 } from '../../services/permissions';
+import {colors, radius, spacing} from '../../theme';
 
 interface Props {
   visible: boolean;
@@ -75,8 +76,8 @@ export default function BarcodeCameraModal({
               style={StyleSheet.absoluteFill}
               scanBarcode
               showFrame
-              laserColor="#ff3b30"
-              frameColor="#ffffff"
+              laserColor={colors.red}
+              frameColor={colors.textOnNavy}
               onReadCode={handleReadCode}
             />
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -90,22 +91,27 @@ export default function BarcodeCameraModal({
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#000'},
+  container: {flex: 1, backgroundColor: colors.navy},
   centered: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: spacing.xl,
   },
-  message: {color: '#fff', fontSize: 16, textAlign: 'center', marginBottom: 16},
+  message: {
+    color: colors.textOnNavy,
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
+  },
   closeButton: {
     position: 'absolute',
-    bottom: 32,
+    bottom: spacing.xl,
     alignSelf: 'center',
-    backgroundColor: '#ffffffdd',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 24,
+    backgroundColor: colors.card,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    borderRadius: radius.pill,
   },
-  closeButtonText: {fontSize: 16, fontWeight: '600', color: '#111'},
+  closeButtonText: {fontSize: 16, fontWeight: '700', color: colors.textPrimary},
 });

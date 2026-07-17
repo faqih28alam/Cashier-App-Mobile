@@ -24,6 +24,9 @@ import {
   PurchaseLineInput,
 } from '../../db/repositories/purchaseRepo';
 import {formatCurrency} from '../../domain/money';
+import Button from '../../components/ui/Button';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PurchaseForm'>;
 
@@ -189,7 +192,9 @@ function PurchaseFormInner({navigation, route}: Props) {
                 supplierId === s.id
                   ? styles.supplierChipTextActive
                   : styles.supplierChipText
-              }>
+              }
+              numberOfLines={1}
+              ellipsizeMode="tail">
               {s.name}
             </Text>
           </TouchableOpacity>
@@ -202,6 +207,7 @@ function PurchaseFormInner({navigation, route}: Props) {
           <TextInput
             style={styles.input}
             placeholder="Barcode"
+            placeholderTextColor={colors.textMuted}
             value={barcode}
             onChangeText={setBarcode}
             onBlur={onBarcodeBlur}
@@ -209,6 +215,7 @@ function PurchaseFormInner({navigation, route}: Props) {
           <TextInput
             style={styles.input}
             placeholder="Nama Barang"
+            placeholderTextColor={colors.textMuted}
             value={name}
             onChangeText={setName}
           />
@@ -216,6 +223,7 @@ function PurchaseFormInner({navigation, route}: Props) {
             <TextInput
               style={[styles.input, styles.inputThird]}
               placeholder="Qty"
+              placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
               value={qty}
               onChangeText={setQty}
@@ -223,6 +231,7 @@ function PurchaseFormInner({navigation, route}: Props) {
             <TextInput
               style={[styles.input, styles.inputThird]}
               placeholder="Harga Beli"
+              placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
               value={unitCost}
               onChangeText={setUnitCost}
@@ -230,6 +239,7 @@ function PurchaseFormInner({navigation, route}: Props) {
             <TextInput
               style={[styles.input, styles.inputThird]}
               placeholder="Harga Jual (baru)"
+              placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
               value={harga1}
               onChangeText={setHarga1}
@@ -246,11 +256,16 @@ function PurchaseFormInner({navigation, route}: Props) {
         data={lines}
         keyExtractor={(_, i) => String(i)}
         scrollEnabled={false}
-        ListEmptyComponent={<Text style={styles.empty}>Belum ada item</Text>}
+        ListEmptyComponent={<EmptyState message="Belum ada item" />}
         renderItem={({item, index}) => (
           <View style={styles.lineRow}>
-            <View>
-              <Text style={styles.lineName}>{item.name}</Text>
+            <View style={styles.lineMain}>
+              <Text
+                style={styles.lineName}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {item.name}
+              </Text>
               <Text style={styles.lineMeta}>
                 {item.qty} x {formatCurrency(item.unitCost)}
               </Text>
@@ -275,15 +290,21 @@ function PurchaseFormInner({navigation, route}: Props) {
       </View>
 
       {!isReadOnly && (
-        <TouchableOpacity style={styles.saveButton} onPress={saveDraft}>
-          <Text style={styles.saveButtonText}>Simpan Draft</Text>
-        </TouchableOpacity>
+        <Button
+          style={styles.saveButton}
+          variant="secondary"
+          label="Simpan Draft"
+          onPress={saveDraft}
+        />
       )}
 
       {purchase && purchase.status === 'draft' && (
-        <TouchableOpacity style={styles.confirmButton} onPress={doConfirm}>
-          <Text style={styles.confirmButtonText}>Konfirmasi Pembelian</Text>
-        </TouchableOpacity>
+        <Button
+          style={styles.confirmButton}
+          variant="success"
+          label="Konfirmasi Pembelian"
+          onPress={doConfirm}
+        />
       )}
     </ScrollView>
   );
@@ -298,80 +319,80 @@ export default function PurchaseFormScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {padding: 16, paddingBottom: 40},
+  container: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    backgroundColor: colors.background,
+  },
   sectionLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#333',
-    marginTop: 12,
-    marginBottom: 8,
+    ...typography.sectionLabel,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
   },
   supplierRow: {flexDirection: 'row', flexWrap: 'wrap'},
   supplierChip: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 16,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    marginRight: 8,
-    marginBottom: 8,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.md,
+    marginRight: spacing.sm,
+    marginBottom: spacing.sm,
+    maxWidth: 200,
   },
-  supplierChipActive: {backgroundColor: '#1d4ed8', borderColor: '#1d4ed8'},
-  supplierChipText: {color: '#333'},
-  supplierChipTextActive: {color: '#fff'},
+  supplierChipActive: {backgroundColor: colors.navy, borderColor: colors.navy},
+  supplierChipText: {color: colors.textSecondary},
+  supplierChipTextActive: {color: colors.textOnBrand},
   form: {},
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
     fontSize: 15,
-    marginBottom: 8,
+    color: colors.textPrimary,
+    backgroundColor: colors.card,
+    marginBottom: spacing.sm,
   },
-  inputRow: {flexDirection: 'row', gap: 8},
-  inputThird: {flex: 1, marginRight: 8},
+  inputRow: {flexDirection: 'row', gap: spacing.sm},
+  inputThird: {flex: 1, marginRight: spacing.sm},
   addLineButton: {
-    backgroundColor: '#eef2ff',
-    paddingVertical: 10,
-    borderRadius: 8,
+    backgroundColor: colors.cardMuted,
+    paddingVertical: spacing.sm + 2,
+    borderRadius: radius.sm,
     alignItems: 'center',
   },
-  addLineButtonText: {color: '#1d4ed8', fontWeight: '700'},
-  empty: {color: '#999', textAlign: 'center', marginVertical: 12},
+  addLineButtonText: {color: colors.navy, fontWeight: '700'},
   lineRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
-  lineName: {fontWeight: '600'},
-  lineMeta: {color: '#666', fontSize: 12, marginTop: 2},
+  lineMain: {flex: 1, marginRight: spacing.sm},
+  lineName: {...typography.bodyMedium},
+  lineMeta: {color: colors.textMuted, fontSize: 12, marginTop: 2},
   lineRight: {alignItems: 'flex-end'},
-  lineTotal: {fontWeight: '700'},
-  removeText: {color: '#b91c1c', fontSize: 12, marginTop: 4},
+  lineTotal: {fontWeight: '700', color: colors.textPrimary},
+  removeText: {
+    color: colors.danger,
+    fontSize: 12,
+    marginTop: spacing.xs,
+    fontWeight: '600',
+  },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
-  totalLabel: {fontWeight: '700', fontSize: 16},
-  totalValue: {fontWeight: '700', fontSize: 16},
-  saveButton: {
-    backgroundColor: '#eee',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  saveButtonText: {fontWeight: '700', color: '#333'},
-  confirmButton: {
-    backgroundColor: '#16a34a',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  confirmButtonText: {fontWeight: '700', color: '#fff'},
+  totalLabel: {fontWeight: '700', fontSize: 16, color: colors.textPrimary},
+  totalValue: {fontWeight: '700', fontSize: 16, color: colors.textPrimary},
+  saveButton: {marginTop: spacing.lg},
+  confirmButton: {marginTop: spacing.md},
 });

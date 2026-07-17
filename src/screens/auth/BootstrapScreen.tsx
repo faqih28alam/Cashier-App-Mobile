@@ -2,14 +2,17 @@ import React, {useState} from 'react';
 import {
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   Alert,
   ScrollView,
+  StatusBar,
+  View,
 } from 'react-native';
 import {useAuth} from '../../state/AuthContext';
+import Button from '../../components/ui/Button';
+import {colors, radius, spacing, typography} from '../../theme';
 
 /**
  * Shown once, on a completely fresh install where the users table is empty.
@@ -51,72 +54,98 @@ export default function BootstrapScreen() {
     <KeyboardAvoidingView
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Selamat Datang</Text>
-        <Text style={styles.subtitle}>
-          Buat akun Owner pertama untuk mulai menggunakan aplikasi.
-        </Text>
-
-        <Text style={styles.label}>Nama Lengkap</Text>
-        <TextInput style={styles.input} value={name} onChangeText={setName} />
-
-        <Text style={styles.label}>Username</Text>
-        <TextInput
-          style={styles.input}
-          value={username}
-          onChangeText={setUsername}
-          autoCapitalize="none"
-        />
-
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-
-        <Text style={styles.label}>Konfirmasi Password</Text>
-        <TextInput
-          style={styles.input}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-        />
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={submit}
-          disabled={submitting}>
-          <Text style={styles.buttonText}>
-            {submitting ? 'Menyimpan...' : 'Buat Akun Owner'}
+      <StatusBar backgroundColor={colors.navy} barStyle="light-content" />
+      <View style={styles.page}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.brand} numberOfLines={1} ellipsizeMode="tail">
+            KASIR APP
           </Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <View style={styles.card}>
+            <Text style={styles.title}>Selamat Datang</Text>
+            <Text style={styles.subtitle}>
+              Buat akun Owner pertama untuk mulai menggunakan aplikasi.
+            </Text>
+
+            <Text style={styles.label}>Nama Lengkap</Text>
+            <TextInput
+              style={styles.input}
+              placeholderTextColor={colors.textMuted}
+              value={name}
+              onChangeText={setName}
+            />
+
+            <Text style={styles.label}>Username</Text>
+            <TextInput
+              style={styles.input}
+              placeholderTextColor={colors.textMuted}
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+            />
+
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholderTextColor={colors.textMuted}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+
+            <Text style={styles.label}>Konfirmasi Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholderTextColor={colors.textMuted}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+            />
+
+            <Button
+              style={styles.button}
+              label={submitting ? 'Menyimpan...' : 'Buat Akun Owner'}
+              onPress={submit}
+              loading={submitting}
+            />
+          </View>
+        </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   flex: {flex: 1},
-  container: {padding: 24, flexGrow: 1, justifyContent: 'center'},
-  title: {fontSize: 24, fontWeight: '700', marginBottom: 4},
-  subtitle: {fontSize: 14, color: '#666', marginBottom: 24},
-  label: {fontSize: 13, color: '#444', marginBottom: 4, marginTop: 12},
+  page: {flex: 1, backgroundColor: colors.navy},
+  container: {padding: spacing.xl, flexGrow: 1, justifyContent: 'center'},
+  brand: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.red,
+    textAlign: 'center',
+    letterSpacing: 1,
+    marginBottom: spacing.lg,
+  },
+  card: {
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
+  },
+  title: {...typography.screenTitle},
+  subtitle: {
+    ...typography.body,
+    color: colors.textMuted,
+    marginBottom: spacing.lg,
+  },
+  label: {...typography.label, marginBottom: spacing.xs, marginTop: spacing.md},
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
     fontSize: 16,
+    color: colors.textPrimary,
   },
-  button: {
-    marginTop: 24,
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {color: '#fff', fontSize: 16, fontWeight: '600'},
+  button: {marginTop: spacing.lg},
 });

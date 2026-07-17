@@ -10,6 +10,9 @@ import {
   listFinanceEntries,
 } from '../../db/repositories/financeRepo';
 import {formatCurrency} from '../../domain/money';
+import Card from '../../components/ui/Card';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'FinanceReport'>;
 
@@ -41,20 +44,31 @@ function FinanceReportInner(_: Props) {
         onChangeFrom={setFrom}
         onChangeTo={setTo}
       />
-      <View style={styles.balanceBox}>
+      <Card style={styles.balanceBox}>
         <Text style={styles.balanceLabel}>Saldo Kas Saat Ini</Text>
-        <Text style={styles.balanceValue}>{formatCurrency(balance)}</Text>
-      </View>
+        <Text
+          style={[styles.balanceValue, balance < 0 && styles.balanceNegative]}
+          numberOfLines={1}
+          adjustsFontSizeToFit>
+          {formatCurrency(balance)}
+        </Text>
+      </Card>
       <FlatList
         data={entries}
         keyExtractor={item => String(item.id)}
+        contentContainerStyle={styles.list}
         ListEmptyComponent={
-          <Text style={styles.empty}>Tidak ada data pada rentang ini</Text>
+          <EmptyState message="Tidak ada data pada rentang ini" />
         }
         renderItem={({item}) => (
           <View style={styles.row}>
-            <View>
-              <Text style={styles.rowDesc}>{item.description}</Text>
+            <View style={styles.rowMain}>
+              <Text
+                style={styles.rowDesc}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {item.description}
+              </Text>
               <Text style={styles.rowMeta}>
                 {new Date(item.createdAt).toLocaleString('id-ID')}
               </Text>
@@ -83,32 +97,33 @@ export default function FinanceReportScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff', padding: 12},
-  balanceBox: {
-    alignItems: 'center',
-    marginBottom: 12,
-    padding: 12,
-    backgroundColor: '#eef2ff',
-    borderRadius: 10,
-  },
-  balanceLabel: {color: '#444'},
+  container: {flex: 1, backgroundColor: colors.background, padding: spacing.md},
+  balanceBox: {alignItems: 'center', marginBottom: spacing.md},
+  balanceLabel: {...typography.body, color: colors.textMuted},
   balanceValue: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#1d4ed8',
-    marginTop: 4,
+    color: colors.navy,
+    marginTop: spacing.xs,
   },
-  empty: {textAlign: 'center', color: '#999', marginTop: 24},
+  balanceNegative: {color: colors.danger},
+  list: {flexGrow: 1},
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
-  rowDesc: {fontWeight: '600'},
-  rowMeta: {color: '#666', fontSize: 11, marginTop: 2},
+  rowMain: {flex: 1, marginRight: spacing.sm},
+  rowDesc: {...typography.bodyMedium},
+  rowMeta: {color: colors.textMuted, fontSize: 11, marginTop: 2},
   rowAmount: {fontWeight: '700'},
-  debit: {color: '#16a34a'},
-  kredit: {color: '#b91c1c'},
+  debit: {color: colors.success},
+  kredit: {color: colors.danger},
 });

@@ -25,6 +25,9 @@ import {
   setItemDiscount,
   setItemQty,
 } from '../../db/repositories/transactionRepo';
+import Button from '../../components/ui/Button';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Kasir'>;
 
@@ -130,6 +133,7 @@ function KasirInner({navigation, route}: Props) {
         <TextInput
           style={styles.barcodeInput}
           placeholder="Scan atau ketik barcode"
+          placeholderTextColor={colors.textMuted}
           value={barcodeInput}
           onChangeText={setBarcodeInput}
           onSubmitEditing={onSubmitBarcode}
@@ -148,21 +152,29 @@ function KasirInner({navigation, route}: Props) {
         data={items}
         keyExtractor={item => String(item.id)}
         contentContainerStyle={styles.list}
-        ListEmptyComponent={<Text style={styles.empty}>Belum ada item</Text>}
+        ListEmptyComponent={<EmptyState message="Belum ada item" />}
         renderItem={({item}) => (
           <View style={styles.row}>
-            <View style={styles.rowMain}>
-              <Text style={styles.rowName}>{item.name}</Text>
-              <Text style={styles.rowMeta}>
-                {formatCurrency(item.unitPrice)} x {item.qty} {item.unit} (
-                {item.priceTier})
+            <View style={styles.rowTopLine}>
+              <Text
+                style={styles.rowName}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {item.name}
               </Text>
-              {item.discount > 0 && (
-                <Text style={styles.rowMeta}>
-                  Diskon: -{formatCurrency(item.discount)}
-                </Text>
-              )}
+              <Text style={styles.rowTotal}>
+                {formatCurrency(item.lineTotal)}
+              </Text>
             </View>
+            <Text style={styles.rowMeta} numberOfLines={1} ellipsizeMode="tail">
+              {formatCurrency(item.unitPrice)} x {item.qty} {item.unit} (
+              {item.priceTier})
+            </Text>
+            {item.discount > 0 && (
+              <Text style={styles.rowMeta}>
+                Diskon: -{formatCurrency(item.discount)}
+              </Text>
+            )}
             <View style={styles.rowActions}>
               <TouchableOpacity
                 style={styles.smallButton}
@@ -180,9 +192,6 @@ function KasirInner({navigation, route}: Props) {
                 <Text style={styles.deleteButtonText}>Hapus</Text>
               </TouchableOpacity>
             </View>
-            <Text style={styles.rowTotal}>
-              {formatCurrency(item.lineTotal)}
-            </Text>
           </View>
         )}
       />
@@ -211,12 +220,18 @@ function KasirInner({navigation, route}: Props) {
       </View>
 
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.holdButton} onPress={holdAndExit}>
-          <Text style={styles.holdButtonText}>Tahan</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.payButton} onPress={goToPayment}>
-          <Text style={styles.payButtonText}>BAYAR</Text>
-        </TouchableOpacity>
+        <Button
+          style={styles.holdButton}
+          variant="secondary"
+          label="Tahan"
+          onPress={holdAndExit}
+        />
+        <Button
+          style={styles.payButton}
+          variant="success"
+          label="BAYAR"
+          onPress={goToPayment}
+        />
       </View>
 
       <BarcodeCameraModal
@@ -256,78 +271,90 @@ export default function KasirScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff'},
-  scanRow: {flexDirection: 'row', padding: 12, gap: 8},
+  container: {flex: 1, backgroundColor: colors.background},
+  scanRow: {flexDirection: 'row', padding: spacing.md, gap: spacing.sm},
   barcodeInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
     fontSize: 16,
+    color: colors.textPrimary,
+    backgroundColor: colors.card,
   },
   cameraButton: {
-    backgroundColor: '#1d4ed8',
-    paddingHorizontal: 16,
+    backgroundColor: colors.navy,
+    paddingHorizontal: spacing.lg,
     justifyContent: 'center',
-    borderRadius: 8,
-    marginLeft: 8,
+    borderRadius: radius.sm,
+    marginLeft: spacing.sm,
   },
-  cameraButtonText: {color: '#fff', fontWeight: '600'},
-  list: {paddingHorizontal: 12, paddingBottom: 12},
-  empty: {textAlign: 'center', color: '#999', marginTop: 40},
+  cameraButtonText: {color: colors.textOnBrand, fontWeight: '700'},
+  list: {paddingHorizontal: spacing.md, paddingBottom: spacing.md, flexGrow: 1},
   row: {
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-    paddingVertical: 10,
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.sm,
   },
-  rowMain: {},
-  rowName: {fontSize: 15, fontWeight: '600'},
-  rowMeta: {fontSize: 12, color: '#666', marginTop: 2},
-  rowActions: {flexDirection: 'row', marginTop: 8, gap: 8},
+  rowTopLine: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  rowName: {...typography.bodyMedium, flex: 1, marginRight: spacing.sm},
+  rowMeta: {fontSize: 12, color: colors.textMuted, marginTop: 2},
+  rowActions: {flexDirection: 'row', marginTop: spacing.sm, gap: spacing.sm},
   smallButton: {
-    backgroundColor: '#eef2ff',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 6,
-    marginRight: 8,
+    backgroundColor: colors.cardMuted,
+    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.sm + 2,
+    borderRadius: radius.sm,
+    marginRight: spacing.sm,
   },
-  smallButtonText: {color: '#1d4ed8', fontWeight: '600', fontSize: 12},
+  smallButtonText: {color: colors.navy, fontWeight: '700', fontSize: 12},
   deleteButton: {
-    backgroundColor: '#fee2e2',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 6,
+    backgroundColor: colors.dangerBg,
+    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.sm + 2,
+    borderRadius: radius.sm,
   },
-  deleteButtonText: {color: '#b91c1c', fontWeight: '600', fontSize: 12},
-  rowTotal: {position: 'absolute', right: 0, top: 10, fontWeight: '700'},
-  summary: {padding: 12, borderTopWidth: 1, borderColor: '#eee'},
+  deleteButtonText: {color: colors.danger, fontWeight: '700', fontSize: 12},
+  rowTotal: {fontWeight: '700', color: colors.textPrimary},
+  summary: {
+    padding: spacing.md,
+    borderTopWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+  },
   summaryLine: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
-  summaryLabel: {color: '#555'},
-  summaryValue: {color: '#333'},
-  summaryLabelBold: {fontWeight: '700', fontSize: 16},
-  summaryValueBold: {fontWeight: '700', fontSize: 16},
-  actions: {flexDirection: 'row', padding: 12, gap: 8},
-  holdButton: {
-    flex: 1,
-    backgroundColor: '#eee',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginRight: 8,
+  summaryLabel: {color: colors.textSecondary},
+  summaryValue: {color: colors.textPrimary},
+  summaryLabelBold: {
+    fontWeight: '700',
+    fontSize: 16,
+    color: colors.textPrimary,
   },
-  holdButtonText: {fontWeight: '700', color: '#333'},
-  payButton: {
-    flex: 2,
-    backgroundColor: '#16a34a',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
+  summaryValueBold: {
+    fontWeight: '700',
+    fontSize: 16,
+    color: colors.textPrimary,
   },
-  payButtonText: {fontWeight: '700', color: '#fff', fontSize: 16},
+  actions: {
+    flexDirection: 'row',
+    padding: spacing.md,
+    gap: spacing.sm,
+    backgroundColor: colors.card,
+  },
+  holdButton: {flex: 1},
+  payButton: {flex: 2},
 });

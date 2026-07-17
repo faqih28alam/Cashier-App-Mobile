@@ -7,6 +7,8 @@ import RoleGuard from '../../components/common/RoleGuard';
 import {Product} from '../../types';
 import {listProducts} from '../../db/repositories/productRepo';
 import {formatCurrency} from '../../domain/money';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductReport'>;
 
@@ -26,18 +28,28 @@ function ProductReportInner(_: Props) {
       <TextInput
         style={styles.search}
         placeholder="Cari nama/barcode"
+        placeholderTextColor={colors.textMuted}
         value={search}
         onChangeText={setSearch}
       />
       <FlatList
         data={products}
         keyExtractor={item => String(item.id)}
-        ListEmptyComponent={<Text style={styles.empty}>Tidak ada produk</Text>}
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={<EmptyState message="Tidak ada produk" />}
         renderItem={({item}) => (
           <View style={styles.row}>
-            <View>
-              <Text style={styles.rowName}>{item.name}</Text>
-              <Text style={styles.rowMeta}>
+            <View style={styles.rowMain}>
+              <Text
+                style={styles.rowName}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {item.name}
+              </Text>
+              <Text
+                style={styles.rowMeta}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {item.barcode} · {item.categoryName ?? '-'} · Stok {item.stock}{' '}
                 {item.unit}
               </Text>
@@ -59,24 +71,32 @@ export default function ProductReportScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff', padding: 12},
+  container: {flex: 1, backgroundColor: colors.background, padding: spacing.md},
   search: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 12,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
+    color: colors.textPrimary,
+    backgroundColor: colors.card,
+    marginBottom: spacing.md,
   },
-  empty: {textAlign: 'center', color: '#999', marginTop: 24},
+  list: {flexGrow: 1},
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
-  rowName: {fontWeight: '600'},
-  rowMeta: {color: '#666', fontSize: 12},
-  rowPrice: {fontWeight: '700'},
+  rowMain: {flex: 1, marginRight: spacing.sm},
+  rowName: {...typography.bodyMedium},
+  rowMeta: {color: colors.textMuted, fontSize: 12, marginTop: 2},
+  rowPrice: {fontWeight: '700', color: colors.textPrimary},
 });

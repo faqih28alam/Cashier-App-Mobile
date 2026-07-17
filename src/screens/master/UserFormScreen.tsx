@@ -19,6 +19,8 @@ import {
   updateUser,
   updateUserPassword,
 } from '../../db/repositories/userRepo';
+import Button from '../../components/ui/Button';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'UserForm'>;
 
@@ -122,7 +124,9 @@ function UserFormInner({navigation, route}: Props) {
             <Text
               style={
                 role === r ? styles.roleChipTextActive : styles.roleChipText
-              }>
+              }
+              numberOfLines={1}
+              ellipsizeMode="tail">
               {r.toUpperCase()}
             </Text>
           </TouchableOpacity>
@@ -142,9 +146,7 @@ function UserFormInner({navigation, route}: Props) {
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity style={styles.saveButton} onPress={save}>
-        <Text style={styles.saveButtonText}>Simpan</Text>
-      </TouchableOpacity>
+      <Button style={styles.saveButton} label="Simpan" onPress={save} />
     </ScrollView>
   );
 }
@@ -158,43 +160,49 @@ export default function UserFormScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {padding: 16, paddingBottom: 40},
-  label: {fontSize: 13, color: '#444', marginBottom: 4, marginTop: 12},
+  container: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    backgroundColor: colors.background,
+  },
+  label: {...typography.label, marginBottom: spacing.xs, marginTop: spacing.md},
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
     fontSize: 15,
+    color: colors.textPrimary,
+    backgroundColor: colors.card,
   },
-  inputDisabled: {backgroundColor: '#f2f2f2', color: '#888'},
-  roleRow: {flexDirection: 'row', gap: 8},
+  inputDisabled: {
+    backgroundColor: colors.background,
+    color: colors.textDisabled,
+  },
+  roleRow: {flexDirection: 'row', gap: spacing.sm},
   roleChip: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingVertical: 10,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.sm + 2,
     alignItems: 'center',
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
-  roleChipActive: {backgroundColor: '#1d4ed8', borderColor: '#1d4ed8'},
-  roleChipText: {color: '#333', fontWeight: '600'},
-  roleChipTextActive: {color: '#fff', fontWeight: '700'},
+  roleChipActive: {backgroundColor: colors.navy, borderColor: colors.navy},
+  roleChipText: {color: colors.textSecondary, fontWeight: '600'},
+  roleChipTextActive: {color: colors.textOnBrand, fontWeight: '700'},
   activeToggle: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: '#f5f5f7',
-    borderRadius: 8,
+    marginTop: spacing.lg,
+    padding: spacing.md,
+    backgroundColor: colors.cardMuted,
+    borderRadius: radius.sm,
   },
-  activeToggleText: {textAlign: 'center', fontWeight: '600', color: '#333'},
-  saveButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 24,
+  activeToggleText: {
+    textAlign: 'center',
+    fontWeight: '600',
+    color: colors.navy,
   },
-  saveButtonText: {color: '#fff', fontWeight: '700', fontSize: 16},
+  saveButton: {marginTop: spacing.xl},
 });

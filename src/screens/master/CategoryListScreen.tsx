@@ -20,6 +20,9 @@ import {
   listCategories,
   updateCategory,
 } from '../../db/repositories/categoryRepo';
+import Button from '../../components/ui/Button';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CategoryList'>;
 
@@ -81,18 +84,21 @@ function CategoryListInner(_: Props) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.newButton} onPress={openNew}>
-        <Text style={styles.newButtonText}>+ Kategori Baru</Text>
-      </TouchableOpacity>
+      <Button
+        style={styles.newButton}
+        label="+ Kategori Baru"
+        onPress={openNew}
+      />
       <FlatList
         data={categories}
         keyExtractor={item => String(item.id)}
-        ListEmptyComponent={
-          <Text style={styles.empty}>Belum ada kategori</Text>
-        }
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={<EmptyState message="Belum ada kategori" />}
         renderItem={({item}) => (
           <View style={styles.row}>
-            <Text style={styles.rowName}>{item.name}</Text>
+            <Text style={styles.rowName} numberOfLines={1} ellipsizeMode="tail">
+              {item.name}
+            </Text>
             <View style={styles.rowActions}>
               <TouchableOpacity onPress={() => openEdit(item)}>
                 <Text style={styles.editText}>Ubah</Text>
@@ -114,18 +120,22 @@ function CategoryListInner(_: Props) {
             <TextInput
               style={styles.input}
               placeholder="Nama Kategori"
+              placeholderTextColor={colors.textMuted}
               value={name}
               onChangeText={setName}
             />
             <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelButtonText}>Batal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.saveButton} onPress={save}>
-                <Text style={styles.saveButtonText}>Simpan</Text>
-              </TouchableOpacity>
+              <Button
+                style={styles.modalButton}
+                variant="secondary"
+                label="Batal"
+                onPress={() => setModalVisible(false)}
+              />
+              <Button
+                style={styles.modalButton}
+                label="Simpan"
+                onPress={save}
+              />
             </View>
           </View>
         </View>
@@ -143,65 +153,47 @@ export default function CategoryListScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff', padding: 12},
-  newButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  newButtonText: {color: '#fff', fontWeight: '700'},
-  empty: {textAlign: 'center', color: '#999', marginTop: 24},
+  container: {flex: 1, backgroundColor: colors.background, padding: spacing.md},
+  newButton: {marginBottom: spacing.md},
+  list: {flexGrow: 1},
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
-  rowName: {fontWeight: '600'},
-  rowActions: {flexDirection: 'row', gap: 16},
-  editText: {color: '#1d4ed8', fontWeight: '600', marginRight: 16},
-  deleteText: {color: '#b91c1c', fontWeight: '600'},
+  rowName: {...typography.bodyMedium, flex: 1, marginRight: spacing.sm},
+  rowActions: {flexDirection: 'row', gap: spacing.lg},
+  editText: {color: colors.navy, fontWeight: '700'},
+  deleteText: {color: colors.danger, fontWeight: '700'},
   modalBackdrop: {
     flex: 1,
-    backgroundColor: '#00000088',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
     width: '85%',
   },
-  modalTitle: {fontSize: 16, fontWeight: '700', marginBottom: 12},
+  modalTitle: {...typography.cardTitle, marginBottom: spacing.md},
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 12,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
   },
-  modalActions: {flexDirection: 'row', gap: 8},
-  cancelButton: {
-    flex: 1,
-    backgroundColor: '#eee',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  cancelButtonText: {fontWeight: '600', color: '#333'},
-  saveButton: {
-    flex: 1,
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  saveButtonText: {fontWeight: '700', color: '#fff'},
+  modalActions: {flexDirection: 'row', gap: spacing.sm},
+  modalButton: {flex: 1},
 });

@@ -1,9 +1,10 @@
 import React from 'react';
-import {View, ActivityIndicator, StyleSheet} from 'react-native';
+import {View, ActivityIndicator, StatusBar, StyleSheet} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from './types';
 import {useAuth} from '../state/AuthContext';
+import {colors} from '../theme';
 
 import BootstrapScreen from '../screens/auth/BootstrapScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
@@ -45,14 +46,22 @@ export default function RootNavigator() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={colors.navy} />
       </View>
     );
   }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerTitleAlign: 'center'}}>
+      <StatusBar backgroundColor={colors.navy} barStyle="light-content" />
+      <Stack.Navigator
+        screenOptions={{
+          headerTitleAlign: 'center',
+          headerStyle: {backgroundColor: colors.navy},
+          headerTintColor: colors.textOnNavy,
+          headerTitleStyle: {fontWeight: '700'},
+          contentStyle: {backgroundColor: colors.background},
+        }}>
         {needsBootstrap ? (
           <Stack.Screen
             name="Bootstrap"
@@ -196,5 +205,10 @@ export default function RootNavigator() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {flex: 1, alignItems: 'center', justifyContent: 'center'},
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
 });

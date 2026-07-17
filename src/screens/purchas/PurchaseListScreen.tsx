@@ -7,6 +7,10 @@ import RoleGuard from '../../components/common/RoleGuard';
 import {Purchase} from '../../types';
 import {listPurchases} from '../../db/repositories/purchaseRepo';
 import {formatCurrency} from '../../domain/money';
+import Button from '../../components/ui/Button';
+import Badge from '../../components/ui/Badge';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PurchaseList'>;
 
@@ -21,17 +25,16 @@ function PurchaseListInner({navigation}: Props) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      <Button
         style={styles.newButton}
-        onPress={() => navigation.navigate('PurchaseForm', {})}>
-        <Text style={styles.newButtonText}>+ Purchase Baru</Text>
-      </TouchableOpacity>
+        label="+ Purchase Baru"
+        onPress={() => navigation.navigate('PurchaseForm', {})}
+      />
       <FlatList
         data={purchases}
         keyExtractor={item => String(item.id)}
-        ListEmptyComponent={
-          <Text style={styles.empty}>Belum ada data pembelian</Text>
-        }
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={<EmptyState message="Belum ada data pembelian" />}
         renderItem={({item}) => (
           <TouchableOpacity
             style={styles.row}
@@ -39,22 +42,25 @@ function PurchaseListInner({navigation}: Props) {
               navigation.navigate('PurchaseForm', {purchaseId: item.id})
             }>
             <View style={styles.rowMain}>
-              <Text style={styles.rowCode}>{item.code}</Text>
-              <Text style={styles.rowMeta}>
+              <Text
+                style={styles.rowCode}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {item.code}
+              </Text>
+              <Text
+                style={styles.rowMeta}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {item.supplierName ?? 'Tanpa supplier'}
               </Text>
             </View>
             <View style={styles.rowRight}>
               <Text style={styles.rowTotal}>{formatCurrency(item.total)}</Text>
-              <Text
-                style={[
-                  styles.statusBadge,
-                  item.status === 'confirmed'
-                    ? styles.statusConfirmed
-                    : styles.statusDraft,
-                ]}>
-                {item.status === 'confirmed' ? 'Terkonfirmasi' : 'Draft'}
-              </Text>
+              <Badge
+                label={item.status === 'confirmed' ? 'Terkonfirmasi' : 'Draft'}
+                tone={item.status === 'confirmed' ? 'success' : 'warning'}
+              />
             </View>
           </TouchableOpacity>
         )}
@@ -72,36 +78,28 @@ export default function PurchaseListScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff', padding: 12},
-  newButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  newButtonText: {color: '#fff', fontWeight: '700'},
-  empty: {textAlign: 'center', color: '#999', marginTop: 40},
+  container: {flex: 1, backgroundColor: colors.background, padding: spacing.md},
+  newButton: {marginBottom: spacing.md},
+  list: {flexGrow: 1},
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
-  rowMain: {},
-  rowCode: {fontWeight: '700'},
-  rowMeta: {color: '#666', fontSize: 12, marginTop: 2},
+  rowMain: {flex: 1, marginRight: spacing.sm},
+  rowCode: {...typography.bodyMedium},
+  rowMeta: {color: colors.textMuted, fontSize: 12, marginTop: 2},
   rowRight: {alignItems: 'flex-end'},
-  rowTotal: {fontWeight: '700'},
-  statusBadge: {
-    marginTop: 4,
-    fontSize: 11,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    overflow: 'hidden',
+  rowTotal: {
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: spacing.xs,
   },
-  statusDraft: {backgroundColor: '#fef3c7', color: '#92400e'},
-  statusConfirmed: {backgroundColor: '#dcfce7', color: '#166534'},
 });

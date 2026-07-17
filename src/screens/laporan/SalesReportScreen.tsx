@@ -11,6 +11,9 @@ import {
   SalesSummary,
 } from '../../db/repositories/reportsRepo';
 import {formatCurrency} from '../../domain/money';
+import StatCard from '../../components/ui/StatCard';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SalesReport'>;
 
@@ -43,34 +46,54 @@ function SalesReportInner(_: Props) {
         onChangeTo={setTo}
       />
 
-      <View style={styles.summaryBox}>
-        <Text style={styles.summaryLine}>
-          Jumlah Transaksi: {summary?.transactionCount ?? 0}
-        </Text>
-        <Text style={styles.summaryLine}>
-          Total Penjualan: {formatCurrency(summary?.totalSales ?? 0)}
-        </Text>
-        <Text style={styles.summaryLine}>
-          Total Diskon: {formatCurrency(summary?.totalDiscount ?? 0)}
-        </Text>
-        <Text style={styles.summaryLine}>
-          Total Pajak: {formatCurrency(summary?.totalTax ?? 0)}
-        </Text>
+      <View style={styles.statGrid}>
+        <View style={styles.statItem}>
+          <StatCard
+            label="Jumlah Transaksi"
+            value={String(summary?.transactionCount ?? 0)}
+            accentColor={colors.badgePurple}
+          />
+        </View>
+        <View style={styles.statItem}>
+          <StatCard
+            label="Total Penjualan"
+            value={formatCurrency(summary?.totalSales ?? 0)}
+            accentColor={colors.badgeOrange}
+          />
+        </View>
+        <View style={styles.statItem}>
+          <StatCard
+            label="Total Diskon"
+            value={formatCurrency(summary?.totalDiscount ?? 0)}
+            accentColor={colors.badgeBlue}
+          />
+        </View>
+        <View style={styles.statItem}>
+          <StatCard
+            label="Total Pajak"
+            value={formatCurrency(summary?.totalTax ?? 0)}
+            accentColor={colors.badgeGreen}
+          />
+        </View>
       </View>
 
       <Text style={styles.sectionLabel}>Rincian per Produk</Text>
       <FlatList
         data={rows}
         keyExtractor={item => String(item.productId)}
+        contentContainerStyle={styles.list}
         ListEmptyComponent={
-          <Text style={styles.empty}>
-            Tidak ada data penjualan pada rentang ini
-          </Text>
+          <EmptyState message="Tidak ada data penjualan pada rentang ini" />
         }
         renderItem={({item}) => (
           <View style={styles.row}>
-            <View>
-              <Text style={styles.rowName}>{item.name}</Text>
+            <View style={styles.rowMain}>
+              <Text
+                style={styles.rowName}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {item.name}
+              </Text>
               <Text style={styles.rowMeta}>Terjual: {item.qtySold}</Text>
             </View>
             <Text style={styles.rowTotal}>
@@ -92,24 +115,30 @@ export default function SalesReportScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff', padding: 12},
-  summaryBox: {
-    backgroundColor: '#eef2ff',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 12,
+  container: {flex: 1, backgroundColor: colors.background, padding: spacing.md},
+  statGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
-  summaryLine: {fontSize: 14, marginBottom: 2},
-  sectionLabel: {fontWeight: '700', marginBottom: 8},
-  empty: {textAlign: 'center', color: '#999', marginTop: 24},
+  statItem: {width: '47%'},
+  sectionLabel: {...typography.sectionLabel, marginBottom: spacing.sm},
+  list: {flexGrow: 1},
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
-  rowName: {fontWeight: '600'},
-  rowMeta: {color: '#666', fontSize: 12},
-  rowTotal: {fontWeight: '700'},
+  rowMain: {flex: 1, marginRight: spacing.sm},
+  rowName: {...typography.bodyMedium},
+  rowMeta: {color: colors.textMuted, fontSize: 12},
+  rowTotal: {fontWeight: '700', color: colors.textPrimary},
 });

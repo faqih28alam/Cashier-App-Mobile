@@ -20,6 +20,9 @@ import {
   listSuppliers,
   updateSupplier,
 } from '../../db/repositories/supplierRepo';
+import Button from '../../components/ui/Button';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SupplierList'>;
 
@@ -92,20 +95,33 @@ function SupplierListInner(_: Props) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.newButton} onPress={openNew}>
-        <Text style={styles.newButtonText}>+ Supplier Baru</Text>
-      </TouchableOpacity>
+      <Button
+        style={styles.newButton}
+        label="+ Supplier Baru"
+        onPress={openNew}
+      />
       <FlatList
         data={suppliers}
         keyExtractor={item => String(item.id)}
-        ListEmptyComponent={
-          <Text style={styles.empty}>Belum ada supplier</Text>
-        }
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={<EmptyState message="Belum ada supplier" />}
         renderItem={({item}) => (
           <View style={styles.row}>
-            <View>
-              <Text style={styles.rowName}>{item.name}</Text>
-              {!!item.phone && <Text style={styles.rowMeta}>{item.phone}</Text>}
+            <View style={styles.rowMain}>
+              <Text
+                style={styles.rowName}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {item.name}
+              </Text>
+              {!!item.phone && (
+                <Text
+                  style={styles.rowMeta}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {item.phone}
+                </Text>
+              )}
             </View>
             <View style={styles.rowActions}>
               <TouchableOpacity onPress={() => openEdit(item)}>
@@ -128,30 +144,36 @@ function SupplierListInner(_: Props) {
             <TextInput
               style={styles.input}
               placeholder="Nama Supplier"
+              placeholderTextColor={colors.textMuted}
               value={name}
               onChangeText={setName}
             />
             <TextInput
               style={styles.input}
               placeholder="Telepon"
+              placeholderTextColor={colors.textMuted}
               value={phone}
               onChangeText={setPhone}
             />
             <TextInput
               style={styles.input}
               placeholder="Alamat"
+              placeholderTextColor={colors.textMuted}
               value={address}
               onChangeText={setAddress}
             />
             <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelButtonText}>Batal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.saveButton} onPress={save}>
-                <Text style={styles.saveButtonText}>Simpan</Text>
-              </TouchableOpacity>
+              <Button
+                style={styles.modalButton}
+                variant="secondary"
+                label="Batal"
+                onPress={() => setModalVisible(false)}
+              />
+              <Button
+                style={styles.modalButton}
+                label="Simpan"
+                onPress={save}
+              />
             </View>
           </View>
         </View>
@@ -169,66 +191,49 @@ export default function SupplierListScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff', padding: 12},
-  newButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  newButtonText: {color: '#fff', fontWeight: '700'},
-  empty: {textAlign: 'center', color: '#999', marginTop: 24},
+  container: {flex: 1, backgroundColor: colors.background, padding: spacing.md},
+  newButton: {marginBottom: spacing.md},
+  list: {flexGrow: 1},
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
-  rowName: {fontWeight: '600'},
-  rowMeta: {color: '#666', fontSize: 12, marginTop: 2},
-  rowActions: {flexDirection: 'row', gap: 16},
-  editText: {color: '#1d4ed8', fontWeight: '600', marginRight: 16},
-  deleteText: {color: '#b91c1c', fontWeight: '600'},
+  rowMain: {flex: 1, marginRight: spacing.sm},
+  rowName: {...typography.bodyMedium},
+  rowMeta: {color: colors.textMuted, fontSize: 12, marginTop: 2},
+  rowActions: {flexDirection: 'row', gap: spacing.lg},
+  editText: {color: colors.navy, fontWeight: '700'},
+  deleteText: {color: colors.danger, fontWeight: '700'},
   modalBackdrop: {
     flex: 1,
-    backgroundColor: '#00000088',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
     width: '85%',
   },
-  modalTitle: {fontSize: 16, fontWeight: '700', marginBottom: 12},
+  modalTitle: {...typography.cardTitle, marginBottom: spacing.md},
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 12,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
   },
-  modalActions: {flexDirection: 'row', gap: 8},
-  cancelButton: {
-    flex: 1,
-    backgroundColor: '#eee',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  cancelButtonText: {fontWeight: '600', color: '#333'},
-  saveButton: {
-    flex: 1,
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  saveButtonText: {fontWeight: '700', color: '#fff'},
+  modalActions: {flexDirection: 'row', gap: spacing.sm},
+  modalButton: {flex: 1},
 });

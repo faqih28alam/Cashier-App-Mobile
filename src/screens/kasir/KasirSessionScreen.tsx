@@ -1,11 +1,5 @@
 import React, {useState, useCallback} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
+import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useFocusEffect} from '@react-navigation/native';
 import {RootStackParamList} from '../../navigation/types';
@@ -17,6 +11,8 @@ import {
   getTransactionItems,
   voidTransaction,
 } from '../../db/repositories/transactionRepo';
+import Button from '../../components/ui/Button';
+import {colors, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'KasirSession'>;
 
@@ -63,7 +59,7 @@ function KasirSessionInner({navigation}: Props) {
   if (checking) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={colors.navy} />
       </View>
     );
   }
@@ -88,18 +84,17 @@ function KasirSessionInner({navigation}: Props) {
       <Text style={styles.subtitle}>
         Ada transaksi yang belum dibayar dengan {heldItemCount} item.
       </Text>
-      <TouchableOpacity
-        style={[styles.button, styles.resumeButton]}
-        onPress={resume}>
-        <Text style={styles.buttonText}>Lanjutkan Transaksi</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.button, styles.freshButton]}
-        onPress={startFresh}>
-        <Text style={[styles.buttonText, styles.freshButtonText]}>
-          Mulai Baru
-        </Text>
-      </TouchableOpacity>
+      <Button
+        style={styles.button}
+        label="Lanjutkan Transaksi"
+        onPress={resume}
+      />
+      <Button
+        style={styles.button}
+        variant="secondary"
+        label="Mulai Baru"
+        onPress={startFresh}
+      />
     </View>
   );
 }
@@ -117,30 +112,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: spacing.xl,
+    backgroundColor: colors.background,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 8,
+    ...typography.screenTitle,
+    marginBottom: spacing.sm,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 24,
+    ...typography.body,
+    color: colors.textMuted,
+    marginBottom: spacing.xl,
     textAlign: 'center',
   },
-  button: {
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-    borderRadius: 10,
-    marginBottom: 12,
-    width: '100%',
-    alignItems: 'center',
-  },
-  resumeButton: {backgroundColor: '#1d4ed8'},
-  freshButton: {backgroundColor: '#eee'},
-  buttonText: {color: '#fff', fontSize: 16, fontWeight: '700'},
-  freshButtonText: {color: '#333'},
+  button: {width: '100%', marginBottom: spacing.md},
 });

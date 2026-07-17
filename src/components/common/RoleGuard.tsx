@@ -1,8 +1,10 @@
 import React, {useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Role} from '../../types';
 import {useAuth} from '../../state/AuthContext';
+import Button from '../ui/Button';
+import {colors, spacing} from '../../theme';
 
 /**
  * Defense-in-depth guard for screens restricted to certain roles. The Home
@@ -37,11 +39,10 @@ export default function RoleGuard({
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Akses ditolak untuk peran Anda.</Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.canGoBack() && navigation.goBack()}>
-          <Text style={styles.buttonText}>Kembali</Text>
-        </TouchableOpacity>
+        <Button
+          label="Kembali"
+          onPress={() => navigation.canGoBack() && navigation.goBack()}
+        />
       </View>
     );
   }
@@ -54,14 +55,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: spacing.xl,
+    backgroundColor: colors.background,
   },
-  text: {fontSize: 16, color: '#b91c1c', marginBottom: 16, textAlign: 'center'},
-  button: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+  text: {
+    fontSize: 16,
+    color: colors.danger,
+    marginBottom: spacing.lg,
+    textAlign: 'center',
   },
-  buttonText: {color: '#fff', fontWeight: '600'},
 });

@@ -16,6 +16,9 @@ import {
   getTransactionById,
   completeTransactionPayment,
 } from '../../db/repositories/transactionRepo';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Payment'>;
 
@@ -69,8 +72,12 @@ function PaymentInner({navigation, route}: Props) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.totalLabel}>Total Belanja</Text>
-      <Text style={styles.totalValue}>{formatCurrency(total)}</Text>
+      <Card style={styles.totalCard}>
+        <Text style={styles.totalLabel}>Total Belanja</Text>
+        <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
+          {formatCurrency(total)}
+        </Text>
+      </Card>
 
       <Text style={styles.sectionLabel}>Nominal Cepat</Text>
       <View style={styles.denomGrid}>
@@ -85,12 +92,18 @@ function PaymentInner({navigation, route}: Props) {
       </View>
 
       <View style={styles.quickRow}>
-        <TouchableOpacity style={styles.exactButton} onPress={payExact}>
-          <Text style={styles.exactButtonText}>Uang Pas</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.clearButton} onPress={clearCash}>
-          <Text style={styles.clearButtonText}>Reset</Text>
-        </TouchableOpacity>
+        <Button
+          style={styles.quickButton}
+          variant="success"
+          label="Uang Pas"
+          onPress={payExact}
+        />
+        <Button
+          style={styles.quickButton}
+          variant="secondary"
+          label="Reset"
+          onPress={clearCash}
+        />
       </View>
 
       <Text style={styles.sectionLabel}>Uang Dibayar</Text>
@@ -101,24 +114,23 @@ function PaymentInner({navigation, route}: Props) {
         onChangeText={onCashTextChange}
       />
 
-      <View style={styles.changeBox}>
+      <Card style={styles.changeBox}>
         <Text style={styles.changeLabel}>Kembalian</Text>
-        <Text style={[styles.changeValue, change < 0 && styles.changeNegative]}>
+        <Text
+          style={[styles.changeValue, change < 0 && styles.changeNegative]}
+          numberOfLines={1}
+          adjustsFontSizeToFit>
           {formatCurrency(Math.max(0, change))}
         </Text>
-      </View>
+      </Card>
 
-      <TouchableOpacity
-        style={[
-          styles.confirmButton,
-          !canConfirm && styles.confirmButtonDisabled,
-        ]}
+      <Button
+        style={styles.confirmButton}
+        label={submitting ? 'Memproses...' : 'KONFIRMASI'}
         onPress={confirm}
-        disabled={!canConfirm || submitting}>
-        <Text style={styles.confirmButtonText}>
-          {submitting ? 'Memproses...' : 'KONFIRMASI'}
-        </Text>
-      </TouchableOpacity>
+        disabled={!canConfirm}
+        loading={submitting}
+      />
     </ScrollView>
   );
 }
@@ -132,70 +144,56 @@ export default function PaymentScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {padding: 16, paddingBottom: 40},
-  totalLabel: {fontSize: 14, color: '#666', textAlign: 'center'},
+  container: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    backgroundColor: colors.background,
+  },
+  totalCard: {alignItems: 'center', marginBottom: spacing.lg},
+  totalLabel: {...typography.body, color: colors.textMuted},
   totalValue: {
     fontSize: 32,
     fontWeight: '800',
-    textAlign: 'center',
-    marginBottom: 20,
+    color: colors.textPrimary,
+    marginTop: spacing.xs,
   },
   sectionLabel: {
-    fontSize: 13,
-    color: '#444',
-    marginBottom: 8,
-    marginTop: 8,
-    fontWeight: '600',
+    ...typography.sectionLabel,
+    marginBottom: spacing.sm,
+    marginTop: spacing.sm,
   },
-  denomGrid: {flexDirection: 'row', flexWrap: 'wrap', gap: 8},
+  denomGrid: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm},
   denomButton: {
-    backgroundColor: '#eef2ff',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    marginRight: 8,
-    marginBottom: 8,
+    backgroundColor: colors.cardMuted,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md + 2,
+    borderRadius: radius.sm,
+    marginRight: spacing.sm,
+    marginBottom: spacing.sm,
   },
-  denomButtonText: {color: '#1d4ed8', fontWeight: '600'},
-  quickRow: {flexDirection: 'row', gap: 8, marginTop: 8},
-  exactButton: {
-    flex: 1,
-    backgroundColor: '#16a34a',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  exactButtonText: {color: '#fff', fontWeight: '700'},
-  clearButton: {
-    flex: 1,
-    backgroundColor: '#eee',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  clearButtonText: {color: '#333', fontWeight: '700'},
+  denomButtonText: {color: colors.navy, fontWeight: '700'},
+  quickRow: {flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm},
+  quickButton: {flex: 1},
   cashInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     fontSize: 20,
     fontWeight: '700',
+    color: colors.textPrimary,
+    backgroundColor: colors.card,
     textAlign: 'right',
   },
-  changeBox: {marginTop: 20, alignItems: 'center'},
-  changeLabel: {fontSize: 14, color: '#666'},
-  changeValue: {fontSize: 26, fontWeight: '800', color: '#16a34a'},
-  changeNegative: {color: '#b91c1c'},
-  confirmButton: {
-    marginTop: 28,
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 16,
-    borderRadius: 10,
-    alignItems: 'center',
+  changeBox: {marginTop: spacing.xl, alignItems: 'center'},
+  changeLabel: {...typography.body, color: colors.textMuted},
+  changeValue: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: colors.success,
+    marginTop: spacing.xs,
   },
-  confirmButtonDisabled: {backgroundColor: '#93a3c7'},
-  confirmButtonText: {color: '#fff', fontWeight: '800', fontSize: 16},
+  changeNegative: {color: colors.danger},
+  confirmButton: {marginTop: spacing.xl, paddingVertical: spacing.lg},
 });

@@ -15,6 +15,9 @@ import {Product} from '../../types';
 import {listProducts} from '../../db/repositories/productRepo';
 import {formatCurrency} from '../../domain/money';
 import LowStockBadge from '../../components/common/LowStockBadge';
+import Button from '../../components/ui/Button';
+import EmptyState from '../../components/ui/EmptyState';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductList'>;
 
@@ -33,18 +36,20 @@ function ProductListInner({navigation}: Props) {
       <TextInput
         style={styles.search}
         placeholder="Cari nama/barcode"
+        placeholderTextColor={colors.textMuted}
         value={search}
         onChangeText={setSearch}
       />
-      <TouchableOpacity
+      <Button
         style={styles.newButton}
-        onPress={() => navigation.navigate('ProductForm', {})}>
-        <Text style={styles.newButtonText}>+ Produk Baru</Text>
-      </TouchableOpacity>
+        label="+ Produk Baru"
+        onPress={() => navigation.navigate('ProductForm', {})}
+      />
       <FlatList
         data={products}
         keyExtractor={item => String(item.id)}
-        ListEmptyComponent={<Text style={styles.empty}>Tidak ada produk</Text>}
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={<EmptyState message="Tidak ada produk" />}
         renderItem={({item}) => (
           <TouchableOpacity
             style={styles.row}
@@ -52,8 +57,16 @@ function ProductListInner({navigation}: Props) {
               navigation.navigate('ProductForm', {productId: item.id})
             }>
             <View style={styles.rowMain}>
-              <Text style={styles.rowName}>{item.name}</Text>
-              <Text style={styles.rowMeta}>
+              <Text
+                style={styles.rowName}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {item.name}
+              </Text>
+              <Text
+                style={styles.rowMeta}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {item.barcode} · Stok {item.stock} {item.unit}
               </Text>
             </View>
@@ -77,34 +90,38 @@ export default function ProductListScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff', padding: 12},
+  container: {flex: 1, backgroundColor: colors.background, padding: spacing.md},
   search: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 8,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
+    color: colors.textPrimary,
+    backgroundColor: colors.card,
+    marginBottom: spacing.sm,
   },
-  newButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  newButtonText: {color: '#fff', fontWeight: '700'},
-  empty: {textAlign: 'center', color: '#999', marginTop: 24},
+  newButton: {marginBottom: spacing.md},
+  list: {flexGrow: 1},
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
-  rowMain: {},
-  rowName: {fontWeight: '600'},
-  rowMeta: {color: '#666', fontSize: 12, marginTop: 2},
+  rowMain: {flex: 1, marginRight: spacing.sm},
+  rowName: {...typography.bodyMedium},
+  rowMeta: {color: colors.textMuted, fontSize: 12, marginTop: 2},
   rowRight: {alignItems: 'flex-end'},
-  rowPrice: {fontWeight: '700'},
+  rowPrice: {
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: spacing.xs,
+  },
 });

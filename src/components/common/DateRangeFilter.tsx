@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, TextInput, StyleSheet} from 'react-native';
+import {colors, radius, spacing} from '../../theme';
 
 interface Props {
   from: string;
@@ -22,6 +23,7 @@ export default function DateRangeFilter({
         <TextInput
           style={styles.input}
           placeholder="YYYY-MM-DD"
+          placeholderTextColor={colors.textMuted}
           value={from}
           onChangeText={onChangeFrom}
         />
@@ -31,6 +33,7 @@ export default function DateRangeFilter({
         <TextInput
           style={styles.input}
           placeholder="YYYY-MM-DD"
+          placeholderTextColor={colors.textMuted}
           value={to}
           onChangeText={onChangeTo}
         />
@@ -40,14 +43,16 @@ export default function DateRangeFilter({
 }
 
 const styles = StyleSheet.create({
-  row: {flexDirection: 'row', gap: 8, marginBottom: 12},
-  field: {flex: 1, marginRight: 8},
-  label: {fontSize: 12, color: '#666', marginBottom: 4},
+  row: {flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md},
+  field: {flex: 1, marginRight: spacing.sm},
+  label: {fontSize: 12, color: colors.textMuted, marginBottom: spacing.xs},
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: spacing.sm,
+    color: colors.textPrimary,
+    backgroundColor: colors.card,
   },
 });

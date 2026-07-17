@@ -19,6 +19,8 @@ import {
   setProductActive,
   updateProduct,
 } from '../../db/repositories/productRepo';
+import Button from '../../components/ui/Button';
+import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductForm'>;
 
@@ -135,7 +137,9 @@ function ProductFormInner({navigation, route}: Props) {
             <Text
               style={
                 categoryId === c.id ? styles.chipTextActive : styles.chipText
-              }>
+              }
+              numberOfLines={1}
+              ellipsizeMode="tail">
               {c.name}
             </Text>
           </TouchableOpacity>
@@ -209,16 +213,15 @@ function ProductFormInner({navigation, route}: Props) {
         onChangeText={setMinStock}
       />
 
-      <TouchableOpacity style={styles.saveButton} onPress={save}>
-        <Text style={styles.saveButtonText}>Simpan</Text>
-      </TouchableOpacity>
+      <Button style={styles.saveButton} label="Simpan" onPress={save} />
 
       {productId != null && (
-        <TouchableOpacity style={styles.toggleButton} onPress={toggleActive}>
-          <Text style={styles.toggleButtonText}>
-            {active ? 'Nonaktifkan Produk' : 'Aktifkan Produk'}
-          </Text>
-        </TouchableOpacity>
+        <Button
+          style={styles.toggleButton}
+          variant="danger"
+          label={active ? 'Nonaktifkan Produk' : 'Aktifkan Produk'}
+          onPress={toggleActive}
+        />
       )}
     </ScrollView>
   );
@@ -233,49 +236,45 @@ export default function ProductFormScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {padding: 16, paddingBottom: 40},
-  label: {fontSize: 13, color: '#444', marginBottom: 4, marginTop: 10},
+  container: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    backgroundColor: colors.background,
+  },
+  label: {
+    ...typography.label,
+    marginBottom: spacing.xs,
+    marginTop: spacing.sm + 2,
+  },
   sectionLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginTop: 20,
-    marginBottom: 4,
+    ...typography.sectionLabel,
+    marginTop: spacing.xl,
+    marginBottom: spacing.xs,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
     fontSize: 15,
+    color: colors.textPrimary,
+    backgroundColor: colors.card,
   },
   chipRow: {flexDirection: 'row', flexWrap: 'wrap'},
   chip: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 16,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    marginRight: 8,
-    marginBottom: 8,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.md,
+    marginRight: spacing.sm,
+    marginBottom: spacing.sm,
+    maxWidth: 180,
   },
-  chipActive: {backgroundColor: '#1d4ed8', borderColor: '#1d4ed8'},
-  chipText: {color: '#333'},
-  chipTextActive: {color: '#fff'},
-  saveButton: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  saveButtonText: {color: '#fff', fontWeight: '700', fontSize: 16},
-  toggleButton: {
-    backgroundColor: '#fee2e2',
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  toggleButtonText: {color: '#b91c1c', fontWeight: '700'},
+  chipActive: {backgroundColor: colors.navy, borderColor: colors.navy},
+  chipText: {color: colors.textSecondary},
+  chipTextActive: {color: colors.textOnBrand},
+  saveButton: {marginTop: spacing.xl},
+  toggleButton: {marginTop: spacing.md},
 });

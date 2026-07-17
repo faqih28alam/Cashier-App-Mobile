@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Modal, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import Button from '../ui/Button';
+import {colors, radius, spacing} from '../../theme';
 
 interface Props {
   visible: boolean;
@@ -64,16 +66,13 @@ export default function NumpadModal({
             ))}
           </View>
           <View style={styles.actions}>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.cancel]}
-              onPress={onCancel}>
-              <Text style={styles.actionText}>Batal</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.confirm]}
-              onPress={confirm}>
-              <Text style={[styles.actionText, styles.confirmText]}>OK</Text>
-            </TouchableOpacity>
+            <Button
+              style={styles.actionButton}
+              variant="secondary"
+              label="Batal"
+              onPress={onCancel}
+            />
+            <Button style={styles.actionButton} label="OK" onPress={confirm} />
           </View>
         </View>
       </View>
@@ -84,39 +83,40 @@ export default function NumpadModal({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: '#00000088',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  card: {backgroundColor: '#fff', borderRadius: 12, padding: 16, width: 300},
-  title: {fontSize: 14, color: '#555', marginBottom: 4, textAlign: 'center'},
+  card: {
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    width: 300,
+  },
+  title: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+    textAlign: 'center',
+  },
   display: {
     fontSize: 28,
     fontWeight: '700',
+    color: colors.textPrimary,
     textAlign: 'right',
-    marginBottom: 12,
+    marginBottom: spacing.md,
     borderBottomWidth: 1,
-    borderColor: '#ddd',
-    paddingBottom: 8,
+    borderColor: colors.border,
+    paddingBottom: spacing.sm,
   },
   grid: {flexDirection: 'row', flexWrap: 'wrap'},
   key: {
     width: '33.333%',
-    paddingVertical: 14,
+    paddingVertical: spacing.md + 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  keyText: {fontSize: 20, fontWeight: '600'},
-  actions: {flexDirection: 'row', marginTop: 12},
-  actionButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginHorizontal: 4,
-  },
-  cancel: {backgroundColor: '#eee'},
-  confirm: {backgroundColor: '#1d4ed8'},
-  actionText: {fontSize: 16, fontWeight: '600', color: '#333'},
-  confirmText: {color: '#fff'},
+  keyText: {fontSize: 20, fontWeight: '600', color: colors.textPrimary},
+  actions: {flexDirection: 'row', marginTop: spacing.md, gap: spacing.sm},
+  actionButton: {flex: 1},
 });
