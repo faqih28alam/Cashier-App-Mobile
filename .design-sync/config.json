@@ -1,0 +1,12 @@
+{
+  "projectId": "c291719f-52f7-49c0-a0f9-092728dc7935",
+  "shape": "storybook",
+  "pkg": "web-ui",
+  "globalName": "CashierUI",
+  "storybookConfigDir": "web-ui/.storybook",
+  "storybookStatic": ".design-sync/sb-reference",
+  "tsconfig": "../../.design-sync/rn-web.tsconfig.json",
+  "entry": "web-ui/ds-entry/index.ts",
+  "readmeHeader": ".design-sync/conventions.md",
+  "buildCmd": "tsc --declaration --emitDeclarationOnly --jsx react-jsx --target es2020 --module esnext --moduleResolution bundler --skipLibCheck --outDir web-ui/ds-entry/types src/components/ui/index.ts"
+}

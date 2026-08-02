@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "react-native": ["../web-ui/node_modules/react-native-web/dist/cjs/index.js"]
+    }
+  }
+}
