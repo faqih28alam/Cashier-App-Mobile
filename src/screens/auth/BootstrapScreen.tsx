@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {useAuth} from '../../state/AuthContext';
 import Button from '../../components/ui/Button';
+import PasswordInput from '../../components/ui/PasswordInput';
 import {colors, radius, spacing, typography} from '../../theme';
 
 /**
@@ -84,21 +85,17 @@ export default function BootstrapScreen() {
             />
 
             <Text style={styles.label}>Password</Text>
-            <TextInput
+            <PasswordInput
               style={styles.input}
-              placeholderTextColor={colors.textMuted}
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
             />
 
             <Text style={styles.label}>Konfirmasi Password</Text>
-            <TextInput
+            <PasswordInput
               style={styles.input}
-              placeholderTextColor={colors.textMuted}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
-              secureTextEntry
             />
 
             <Button

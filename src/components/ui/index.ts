@@ -5,3 +5,4 @@ export {default as ScreenHeader} from './ScreenHeader';
 export {default as EmptyState} from './EmptyState';
 export {default as StatCard} from './StatCard';
 export {default as Badge} from './Badge';
+export {default as PasswordInput} from './PasswordInput';

@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Switch,
   StyleSheet,
   ScrollView,
   Alert,
@@ -11,15 +12,18 @@ import {
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/types';
 import RoleGuard from '../../components/common/RoleGuard';
+import {useAuth} from '../../state/AuthContext';
 import {Role} from '../../types';
 import {
   createUser,
+  deleteUser,
   findUserById,
   findUserByUsername,
   updateUser,
   updateUserPassword,
 } from '../../db/repositories/userRepo';
 import Button from '../../components/ui/Button';
+import PasswordInput from '../../components/ui/PasswordInput';
 import {colors, radius, spacing, typography} from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'UserForm'>;
@@ -28,11 +32,14 @@ const ROLES: Role[] = ['kasir', 'admin', 'owner'];
 
 function UserFormInner({navigation, route}: Props) {
   const {userId} = route.params;
+  const {currentUser} = useAuth();
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<Role>('kasir');
   const [active, setActive] = useState(true);
   const [password, setPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -53,6 +60,7 @@ function UserFormInner({navigation, route}: Props) {
       Alert.alert('Nama wajib diisi');
       return;
     }
+    setSaving(true);
     try {
       if (userId) {
         await updateUser(userId, {name: name.trim(), role, active});
@@ -87,7 +95,41 @@ function UserFormInner({navigation, route}: Props) {
       navigation.goBack();
     } catch (e: any) {
       Alert.alert('Gagal menyimpan', e?.message ?? 'Terjadi kesalahan.');
+    } finally {
+      setSaving(false);
     }
+  };
+
+  const remove = () => {
+    if (!userId) {
+      return;
+    }
+    Alert.alert(
+      'Hapus Pengguna',
+      `Yakin ingin menghapus "${name}"? Tindakan ini tidak bisa dibatalkan.`,
+      [
+        {text: 'Batal', style: 'cancel'},
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await deleteUser(userId);
+              navigation.goBack();
+            } catch (e: any) {
+              Alert.alert(
+                'Gagal menghapus',
+                'Pengguna ini memiliki riwayat transaksi dan tidak bisa dihapus. ' +
+                  'Gunakan tombol "Nonaktifkan" di atas untuk mencegahnya login.',
+              );
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -107,11 +149,10 @@ function UserFormInner({navigation, route}: Props) {
       <Text style={styles.label}>
         {userId ? 'Ubah Password (opsional)' : 'Password'}
       </Text>
-      <TextInput
+      <PasswordInput
         style={styles.input}
         value={password}
         onChangeText={setPassword}
-        secureTextEntry
       />
 
       <Text style={styles.label}>Peran</Text>
@@ -134,19 +175,35 @@ function UserFormInner({navigation, route}: Props) {
       </View>
 
       {userId != null && (
-        <TouchableOpacity
-          style={styles.activeToggle}
-          onPress={() => setActive(!active)}>
+        <View style={styles.activeToggle}>
           <Text style={styles.activeToggleText}>
-            Status:{' '}
-            {active
-              ? 'Aktif (tap untuk nonaktifkan)'
-              : 'Nonaktif (tap untuk aktifkan)'}
+            Status: {active ? 'Aktif' : 'Nonaktif'}
           </Text>
-        </TouchableOpacity>
+          <Switch
+            value={active}
+            onValueChange={setActive}
+            trackColor={{false: colors.borderStrong, true: colors.success}}
+            thumbColor={colors.card}
+          />
+        </View>
       )}
 
-      <Button style={styles.saveButton} label="Simpan" onPress={save} />
+      <Button
+        style={styles.saveButton}
+        label={saving ? 'Menyimpan...' : 'Simpan'}
+        loading={saving}
+        onPress={save}
+      />
+
+      {userId != null && userId !== currentUser?.id && (
+        <Button
+          style={styles.deleteButton}
+          variant="danger"
+          label={deleting ? 'Menghapus...' : 'Hapus Pengguna'}
+          loading={deleting}
+          onPress={remove}
+        />
+      )}
     </ScrollView>
   );
 }
@@ -194,15 +251,18 @@ const styles = StyleSheet.create({
   roleChipText: {color: colors.textSecondary, fontWeight: '600'},
   roleChipTextActive: {color: colors.textOnBrand, fontWeight: '700'},
   activeToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginTop: spacing.lg,
     padding: spacing.md,
     backgroundColor: colors.cardMuted,
     borderRadius: radius.sm,
   },
   activeToggleText: {
-    textAlign: 'center',
     fontWeight: '600',
     color: colors.navy,
   },
   saveButton: {marginTop: spacing.xl},
+  deleteButton: {marginTop: spacing.md},
 });

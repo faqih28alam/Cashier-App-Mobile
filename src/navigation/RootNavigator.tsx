@@ -8,19 +8,10 @@ import {colors} from '../theme';
 
 import BootstrapScreen from '../screens/auth/BootstrapScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
-import HomeScreen from '../screens/home/HomeScreen';
+import MainTabs from './MainTabs';
 
-import KasirSessionScreen from '../screens/kasir/KasirSessionScreen';
-import KasirScreen from '../screens/kasir/KasirScreen';
-import PaymentScreen from '../screens/kasir/PaymentScreen';
-import ReceiptResultScreen from '../screens/kasir/ReceiptResultScreen';
-
-import PurchaseListScreen from '../screens/purchas/PurchaseListScreen';
 import PurchaseFormScreen from '../screens/purchas/PurchaseFormScreen';
 
-import FinanceScreen from '../screens/keuangan/FinanceScreen';
-
-import ReportsHomeScreen from '../screens/laporan/ReportsHomeScreen';
 import SalesReportScreen from '../screens/laporan/SalesReportScreen';
 import ProductReportScreen from '../screens/laporan/ProductReportScreen';
 import StockReportScreen from '../screens/laporan/StockReportScreen';
@@ -78,53 +69,16 @@ export default function RootNavigator() {
           <>
             <Stack.Screen
               name="Home"
-              component={HomeScreen}
+              component={MainTabs}
               options={{headerShown: false}}
             />
 
-            <Stack.Screen
-              name="KasirSession"
-              component={KasirSessionScreen}
-              options={{title: 'KASIR'}}
-            />
-            <Stack.Screen
-              name="Kasir"
-              component={KasirScreen}
-              options={{title: 'Transaksi'}}
-            />
-            <Stack.Screen
-              name="Payment"
-              component={PaymentScreen}
-              options={{title: 'Pembayaran'}}
-            />
-            <Stack.Screen
-              name="ReceiptResult"
-              component={ReceiptResultScreen}
-              options={{title: 'Struk', headerBackVisible: false}}
-            />
-
-            <Stack.Screen
-              name="PurchaseList"
-              component={PurchaseListScreen}
-              options={{title: 'PURCHAS'}}
-            />
             <Stack.Screen
               name="PurchaseForm"
               component={PurchaseFormScreen}
               options={{title: 'Detail Pembelian'}}
             />
 
-            <Stack.Screen
-              name="Keuangan"
-              component={FinanceScreen}
-              options={{title: 'KEUANGAN'}}
-            />
-
-            <Stack.Screen
-              name="ReportsHome"
-              component={ReportsHomeScreen}
-              options={{title: 'LAPORAN'}}
-            />
             <Stack.Screen
               name="SalesReport"
               component={SalesReportScreen}

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import {useAuth} from '../../state/AuthContext';
 import Button from '../../components/ui/Button';
+import PasswordInput from '../../components/ui/PasswordInput';
 import {colors, radius, spacing, typography} from '../../theme';
 
 export default function LoginScreen() {
@@ -61,12 +62,10 @@ export default function LoginScreen() {
           />
 
           <Text style={styles.label}>Password</Text>
-          <TextInput
+          <PasswordInput
             style={styles.input}
-            placeholderTextColor={colors.textMuted}
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
             onSubmitEditing={submit}
           />
 
