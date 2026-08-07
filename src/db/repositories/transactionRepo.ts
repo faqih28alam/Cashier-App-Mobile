@@ -45,6 +45,7 @@ function mapItemRow(row: any): TransactionItem {
     priceTier: row.price_tier,
     discount: row.discount,
     lineTotal: row.line_total,
+    hpp: row.hpp,
   };
 }
 
@@ -179,8 +180,8 @@ export async function addOrIncrementItemByBarcode(
     const lineTotal = computeLineTotal(unitPrice, 1, 0);
     await db.executeSql(
       `INSERT INTO transaction_items
-        (transaction_id, product_id, barcode, name, unit, qty, unit_price, price_tier, discount, line_total)
-       VALUES (?, ?, ?, ?, ?, 1, ?, ?, 0, ?);`,
+        (transaction_id, product_id, barcode, name, unit, qty, unit_price, price_tier, discount, line_total, hpp)
+       VALUES (?, ?, ?, ?, ?, 1, ?, ?, 0, ?, ?);`,
       [
         transactionId,
         product.id,
@@ -190,6 +191,7 @@ export async function addOrIncrementItemByBarcode(
         unitPrice,
         tier,
         lineTotal,
+        product.hpp,
       ],
     );
   }

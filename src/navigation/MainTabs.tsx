@@ -15,7 +15,7 @@ import {colors} from '../theme';
 import KasirStack, {KasirStackParamList} from './KasirStack';
 import PurchaseListScreen from '../screens/purchas/PurchaseListScreen';
 import FinanceScreen from '../screens/keuangan/FinanceScreen';
-import ReportsHomeScreen from '../screens/laporan/ReportsHomeScreen';
+import RingkasanScreen from '../screens/laporan/RingkasanScreen';
 import MoreScreen from '../screens/more/MoreScreen';
 
 export type MainTabParamList = {
@@ -120,7 +120,7 @@ export default function MainTabs() {
       {has('LAPORAN') && (
         <Tab.Screen
           name="Laporan"
-          component={ReportsHomeScreen as React.ComponentType<any>}
+          component={RingkasanScreen as React.ComponentType<any>}
           options={{title: 'Laporan', tabBarIcon: tabIcon('chart-bar')}}
         />
       )}

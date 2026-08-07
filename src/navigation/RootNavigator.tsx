@@ -15,7 +15,6 @@ import PurchaseFormScreen from '../screens/purchas/PurchaseFormScreen';
 import SalesReportScreen from '../screens/laporan/SalesReportScreen';
 import ProductReportScreen from '../screens/laporan/ProductReportScreen';
 import StockReportScreen from '../screens/laporan/StockReportScreen';
-import TransactionReportScreen from '../screens/laporan/TransactionReportScreen';
 import FinanceReportScreen from '../screens/laporan/FinanceReportScreen';
 
 import MasterHomeScreen from '../screens/master/MasterHomeScreen';
@@ -93,11 +92,6 @@ export default function RootNavigator() {
               name="StockReport"
               component={StockReportScreen}
               options={{title: 'Laporan Stok'}}
-            />
-            <Stack.Screen
-              name="TransactionReport"
-              component={TransactionReportScreen}
-              options={{title: 'Laporan Transaksi'}}
             />
             <Stack.Screen
               name="FinanceReport"

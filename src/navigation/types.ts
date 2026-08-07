@@ -30,7 +30,6 @@ export type RootStackParamList = {
   SalesReport: undefined;
   ProductReport: undefined;
   StockReport: undefined;
-  TransactionReport: undefined;
   FinanceReport: undefined;
 
   MasterHome: undefined;

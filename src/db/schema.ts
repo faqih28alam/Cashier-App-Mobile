@@ -61,6 +61,8 @@ export const SCHEMA_STATEMENTS: string[] = [
     paid_at TEXT
   );`,
 
+  // hpp is snapshotted from products.hpp when the item is added to the cart,
+  // not joined live, so gross-profit reports stay stable if a product's cost changes later.
   `CREATE TABLE IF NOT EXISTS transaction_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     transaction_id INTEGER NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
@@ -72,7 +74,8 @@ export const SCHEMA_STATEMENTS: string[] = [
     unit_price REAL NOT NULL,
     price_tier TEXT NOT NULL DEFAULT 'harga_1',
     discount REAL NOT NULL DEFAULT 0,
-    line_total REAL NOT NULL
+    line_total REAL NOT NULL,
+    hpp REAL NOT NULL DEFAULT 0
   );`,
 
   'CREATE INDEX IF NOT EXISTS idx_txitems_tx ON transaction_items(transaction_id);',

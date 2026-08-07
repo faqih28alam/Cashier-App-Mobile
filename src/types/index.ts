@@ -59,6 +59,7 @@ export interface TransactionItem {
   priceTier: 'harga_1' | 'harga_2' | 'harga_3';
   discount: number;
   lineTotal: number;
+  hpp: number;
 }
 
 export interface Transaction {
